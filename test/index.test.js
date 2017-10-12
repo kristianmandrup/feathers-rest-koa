@@ -1,11 +1,19 @@
 /* eslint-disable handle-callback-err */
 
 import assert from 'assert';
-import request from 'request';
+import request from 'supertest';
 import feathers from 'feathers';
-import bodyParser from 'koa-bodyparser'
+import bodyParser from 'koa-bodyparser';
 import rest from '../src';
 import { Service as todoService, verify } from 'feathers-commons/lib/test-fixture';
+
+// Koa testing with supertest
+// http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
+
+function close (server, done) {
+  console.log('closing', server);
+}
+
 
 describe('REST provider', function () {
   describe('CRUD', function () {
@@ -24,11 +32,8 @@ describe('REST provider', function () {
           }
         })
         .use('todo', todoService);
-
-      server = app.listen(4777, () => app.use('tasks', todoService));
+        server = app.listen(4777, () => app.use('tasks', todoService));        
     });
-
-    after(done => server.close(done));
 
     describe('Services', () => {
       it('sets the hook object in res.hook', done => {
@@ -37,7 +42,7 @@ describe('REST provider', function () {
             callback(null, { description: `You have to do ${id}` });
           }
         }, function (ctx, next) {
-          ctx.body.hook = res.hook;
+          ctx.body.hook = ctx.hook;
           next();
         });
 
@@ -64,8 +69,7 @@ describe('REST provider', function () {
         }, function (ctx, next) {
           ctx.status(500);
           ctx.json({
-            hook: res.hook,
-            error
+            hook: ctx.hook
           });
         });
 
@@ -85,19 +89,23 @@ describe('REST provider', function () {
       });
 
       it('GET .find', done => {
-        request('http://localhost:4777/todo', (error, response, body) => {
-          assert.ok(response.statusCode === 200, 'Got OK status code');
-          verify.find(JSON.parse(body));
-          done(error);
-        });
+        request
+          .get('http://localhost:4777/todo')
+          .expect(200)
+          .end((error, response, body) => {
+            verify.find(JSON.parse(body));
+            done(error);
+          });
       });
 
       it('GET .get', done => {
-        request('http://localhost:4777/todo/dishes', (error, response, body) => {
-          assert.ok(response.statusCode === 200, 'Got OK status code');
-          verify.get('dishes', JSON.parse(body));
-          done(error);
-        });
+        request
+          .get('http://localhost:4777/todo/dishes')
+          .expect(200)
+          .end(error, response, body) => {          
+            verify.get('dishes', JSON.parse(body));
+            done(error);
+          });
       });
 
       it('POST .create', done => {
@@ -105,19 +113,15 @@ describe('REST provider', function () {
           description: 'POST .create'
         };
 
-        request({
-          url: 'http://localhost:4777/todo',
-          method: 'post',
-          body: JSON.stringify(original),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }, (error, response, body) => {
-          assert.ok(response.statusCode === 201, 'Got CREATED status code');
-          verify.create(original, JSON.parse(body));
-
-          done(error);
-        });
+        request
+          .post('http://localhost:4777/todo')
+          .send(JSON.stringify(original))
+          .set('Content-Type', 'application/json')
+          .expect(201)
+          .end((error, response, body) => {
+            verify.create(original, JSON.parse(body));
+            done(error);
+          });
       });
 
       it('PUT .update', done => {
@@ -125,19 +129,15 @@ describe('REST provider', function () {
           description: 'PUT .update'
         };
 
-        request({
-          url: 'http://localhost:4777/todo/544',
-          method: 'put',
-          body: JSON.stringify(original),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }, (error, response, body) => {
-          assert.ok(response.statusCode === 200, 'Got OK status code');
-          verify.update(544, original, JSON.parse(body));
-
-          done(error);
-        });
+        request
+          .put('http://localhost:4777/todo/544')
+          .send(JSON.stringify(original))
+          .set('Content-Type', 'application/json')
+          .expect(200)
+          .end(error, response) => {            
+            verify.update(544, original, JSON.parse(body));
+            done(error);
+          });
       });
 
       it('PUT .update many', done => {
@@ -146,20 +146,17 @@ describe('REST provider', function () {
           many: true
         };
 
-        request({
-          url: 'http://localhost:4777/todo',
-          method: 'put',
-          body: JSON.stringify(original),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }, (error, response, body) => {
-          let data = JSON.parse(body);
-          assert.ok(response.statusCode === 200, 'Got OK status code');
-          verify.update(null, original, data);
+        request
+          .put('http://localhost:4777/todo')
+          .send(JSON.stringify(original))
+          .set('Content-Type', 'application/json')
+          .expect(200)
+          .end((error, response, body) => {
+            let data = JSON.parse(body);
+            verify.update(null, original, data);
 
-          done(error);
-        });
+            done(error);
+          });
       });
 
       it('PATCH .patch', done => {
@@ -167,19 +164,15 @@ describe('REST provider', function () {
           description: 'PATCH .patch'
         };
 
-        request({
-          url: 'http://localhost:4777/todo/544',
-          method: 'patch',
-          body: JSON.stringify(original),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }, (error, response, body) => {
-          assert.ok(response.statusCode === 200, 'Got OK status code');
-          verify.patch(544, original, JSON.parse(body));
-
-          done(error);
-        });
+        request
+          .patch('http://localhost:4777/todo/544')
+          .send(JSON.stringify(original))
+          .set('Content-Type', 'application/json')
+          .expect(200)
+          .end((error, response, body) => {
+            verify.patch(544, original, JSON.parse(body));
+            done(error);
+          });
       });
 
       it('PATCH .patch many', done => {
@@ -188,61 +181,57 @@ describe('REST provider', function () {
           many: true
         };
 
-        request({
-          url: 'http://localhost:4777/todo',
-          method: 'patch',
-          body: JSON.stringify(original),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }, (error, response, body) => {
-          assert.ok(response.statusCode === 200, 'Got OK status code');
-          verify.patch(null, original, JSON.parse(body));
-
-          done(error);
-        });
+        request
+          .patch('http://localhost:4777/todo')
+          .send(JSON.stringify(original)),
+          .set('Content-Type', 'application/json')
+          .expect(200)
+          .end((error, response) => {          
+            verify.patch(null, original, JSON.parse(response.body));
+            done(error);
+          });
       });
 
       it('DELETE .remove', done => {
-        request({
-          url: 'http://localhost:4777/tasks/233',
-          method: 'delete'
-        }, function (error, response, body) {
-          assert.ok(response.statusCode === 200, 'Got OK status code');
-          verify.remove(233, JSON.parse(body));
-
-          done(error);
-        });
+        request
+          .delete('http://localhost:4777/tasks/233')
+          .expect(200)
+          .end(error, response) {            
+            verify.remove(233, JSON.parse(response.body));
+            done(error);
+          });
       });
 
       it('DELETE .remove many', done => {
-        request({
-          url: 'http://localhost:4777/tasks',
-          method: 'delete'
-        }, (error, response, body) => {
-          assert.ok(response.statusCode === 200, 'Got OK status code');
-          verify.remove(null, JSON.parse(body));
-
-          done(error);
+        request
+          .delete('http://localhost:4777/tasks')
+          .expect(200)
+          .end((error, response) => {          
+            verify.remove(null, JSON.parse(response.body));
+            done(error);
         });
       });
     });
 
     describe('Dynamic Services', () => {
       it('GET .find', done => {
-        request('http://localhost:4777/tasks', (error, response, body) => {
-          assert.ok(response.statusCode === 200, 'Got OK status code');
-          verify.find(JSON.parse(body));
-          done(error);
+        request
+          .get('http://localhost:4777/tasks')
+          .expect(200)
+          .end((error, response, body) => {
+            verify.find(JSON.parse(body));
+            done(error);
         });
       });
 
       it('GET .get', done => {
-        request('http://localhost:4777/tasks/dishes', (error, response, body) => {
-          assert.ok(response.statusCode === 200, 'Got OK status code');
-          verify.get('dishes', JSON.parse(body));
-          done(error);
-        });
+        request
+          .get('http://localhost:4777/tasks/dishes')
+          .expect(200)
+          .end((error, response) => {
+            verify.get('dishes', JSON.parse(response.body));
+            done(error);
+          });
       });
 
       it('POST .create', done => {
@@ -250,19 +239,15 @@ describe('REST provider', function () {
           description: 'Dynamic POST .create'
         };
 
-        request({
-          url: 'http://localhost:4777/tasks',
-          method: 'post',
-          body: JSON.stringify(original),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }, (error, response, body) => {
-          assert.ok(response.statusCode === 201, 'Got CREATED status code');
-          verify.create(original, JSON.parse(body));
-
-          done(error);
-        });
+        request
+          .post('http://localhost:4777/tasks')
+          .send(JSON.stringify(original))
+          .set('Content-Type', 'application/json')
+          .expect(201)
+          .end((error, response) => {
+            verify.create(original, JSON.parse(response.body));
+            done(error);
+          });
       });
 
       it('PUT .update', done => {
@@ -270,19 +255,15 @@ describe('REST provider', function () {
           description: 'Dynamic PUT .update'
         };
 
-        request({
-          url: 'http://localhost:4777/tasks/544',
-          method: 'put',
-          body: JSON.stringify(original),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }, (error, response, body) => {
-          assert.ok(response.statusCode === 200, 'Got OK status code');
-          verify.update(544, original, JSON.parse(body));
-
-          done(error);
-        });
+        request
+          .put('http://localhost:4777/tasks/544')
+          .send(JSON.stringify(original))
+          .set('Content-Type', 'application/json')
+          .expect(200)
+          .end((error, response) => {
+            verify.update(544, original, JSON.parse(response.body));
+            done(error);
+          });
       });
 
       it('PATCH .patch', done => {
@@ -290,31 +271,25 @@ describe('REST provider', function () {
           description: 'Dynamic PATCH .patch'
         };
 
-        request({
-          url: 'http://localhost:4777/tasks/544',
-          method: 'patch',
-          body: JSON.stringify(original),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }, (error, response, body) => {
-          assert.ok(response.statusCode === 200, 'Got OK status code');
-          verify.patch(544, original, JSON.parse(body));
-
-          done(error);
-        });
+        request
+          .patch('http://localhost:4777/tasks/544')
+          .send(JSON.stringify(original))
+          .set('Content-Type', 'application/json')
+          .expect(200)
+          .end((error, response) => {
+            verify.patch(544, original, JSON.parse(response.body));
+            done(error);
+          });
       });
 
       it('DELETE .remove', done => {
-        request({
-          url: 'http://localhost:4777/tasks/233',
-          method: 'delete'
-        }, (error, response, body) => {
-          assert.ok(response.statusCode === 200, 'Got OK status code');
-          verify.remove(233, JSON.parse(body));
-
-          done(error);
-        });
+        request
+          .delete('http://localhost:4777/tasks/233')
+          .end((error, response, body) => {
+            assert.ok(response.statusCode === 200, 'Got OK status code');
+            verify.remove(233, JSON.parse(body));
+            done(error);
+          });
       });
     });
   });
@@ -324,7 +299,7 @@ describe('REST provider', function () {
     let server;
 
     before(function () {
-      app = feathers().configure(rest(rest.formatter))
+      app = feathers().configure(rest())
         .use('todo', {
           get (id) {
             return Promise.resolve({ description: `You have to do ${id}` });
@@ -348,18 +323,17 @@ describe('REST provider', function () {
       });
 
       // Error handler
-      app.use(function (ctx, next) {
-        if (ctx.code < 400) {
-          ctx.status(500);
-        }
-
-        ctx.json({ message: error.message });
+      app.on('error', function (error, ctx) {
+        console.log({
+          error,
+          ctx
+        });
       });
 
       server = app.listen(4780);
     });
 
-    after(done => server.close(done));
+    after(done => close(server, done));
 
     it('throws a 405 for undefined service methods and sets Allow header (#99)', done => {
       request('http://localhost:4780/todo/dishes', (error, response, body) => {
@@ -403,7 +377,7 @@ describe('REST provider', function () {
 
     let server = feathers().configure(rest(rest.formatter))
       .use(function (ctx, next) {
-        assert.ok(req.feathers, 'Feathers object initialized');
+        assert.ok(ctx.feathers, 'Feathers object initialized');
         ctx.feathers.test = 'Happy';
         next();
       })
@@ -423,17 +397,17 @@ describe('REST provider', function () {
 
         assert.ok(response.statusCode === 200, 'Got OK status code');
         assert.deepEqual(JSON.parse(body), expected, 'Got params object back');
-        server.close(done);
+        close(server, done);
       });
   });
 
   it('lets you set the handler manually', done => {
     let app = feathers();
 
-    app.configure(rest(async function (ctx) {
+    app.configure(rest(async function (ctx, next) {
       ctx.format({
         'text/plain': function () {
-          ctx.end(`The todo is: ${res.data.description}`);
+          ctx.body = `The todo is: ${ctx.body.description}`;
         }
       });
     }))
@@ -446,7 +420,7 @@ describe('REST provider', function () {
     let server = app.listen(4776);
     request('http://localhost:4776/todo/dishes', (error, response, body) => {
       assert.equal(body, 'The todo is: You have to do dishes');
-      server.close(done);
+      close(server, done);
     });
   });
 
@@ -455,11 +429,12 @@ describe('REST provider', function () {
     let app = feathers();
 
     app.use(function defaultContentTypeMiddleware (ctx, next) {
-      req.headers['content-type'] = req.headers['content-type'] || 'application/json';
+      let type = ctx.get('content-type') || 'application/json';
+      ctx.set('content-type', type);
       next();
     })
     .configure(rest(rest.formatter))
-    .use(bodyParser.json())
+    .use(bodyParser()) // supports json
     .use('/todo', {
       create (data, params, callback) {
         callback(null, data);
@@ -473,7 +448,7 @@ describe('REST provider', function () {
       body: JSON.stringify(data)
     }, (error, response, body) => {
       assert.deepEqual(JSON.parse(body), data);
-      server.close(done);
+      close(server, done);
     });
   });
 
@@ -502,7 +477,7 @@ describe('REST provider', function () {
       request('http://localhost:6880/theApp/myId/todo/' + expected.id, (error, response, body) => {
         assert.ok(response.statusCode === 200, 'Got OK status code');
         assert.deepEqual(expected, JSON.parse(body));
-        server.close(done);
+        close(server, done);
       });
     });
   });
