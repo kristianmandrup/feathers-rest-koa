@@ -14,7 +14,6 @@ function close (server, done) {
   console.log('closing', server);
 }
 
-
 describe('REST provider', function () {
   describe('CRUD', function () {
     let server, app;
@@ -32,8 +31,10 @@ describe('REST provider', function () {
           }
         })
         .use('todo', todoService);
-        server = app.listen(4777, () => app.use('tasks', todoService));        
+      server = app.listen(4777, () => app.use('tasks', todoService));
     });
+
+    after(done => close(server, done));
 
     describe('Services', () => {
       it('sets the hook object in res.hook', done => {
@@ -73,19 +74,21 @@ describe('REST provider', function () {
           });
         });
 
-        request('http://localhost:4777/hook-error/dishes', (error, response, body) => {
-          const hook = JSON.parse(body).hook;
-          assert.deepEqual(hook, {
-            id: 'dishes',
-            params: {
-              query: {},
-              provider: 'rest'
-            },
-            method: 'get',
-            type: 'error'
+        request
+          .get('http://localhost:4777/hook-error/dishes')
+          .end((error, response) => {
+            const hook = JSON.parse(response.body).hook;
+            assert.deepEqual(hook, {
+              id: 'dishes',
+              params: {
+                query: {},
+                provider: 'rest'
+              },
+              method: 'get',
+              type: 'error'
+            });
+            done();
           });
-          done();
-        });
       });
 
       it('GET .find', done => {
@@ -102,7 +105,7 @@ describe('REST provider', function () {
         request
           .get('http://localhost:4777/todo/dishes')
           .expect(200)
-          .end(error, response, body) => {          
+          .end((error, response, body) => {
             verify.get('dishes', JSON.parse(body));
             done(error);
           });
@@ -134,8 +137,8 @@ describe('REST provider', function () {
           .send(JSON.stringify(original))
           .set('Content-Type', 'application/json')
           .expect(200)
-          .end(error, response) => {            
-            verify.update(544, original, JSON.parse(body));
+          .end((error, response) => {
+            verify.update(544, original, JSON.parse(response.body));
             done(error);
           });
       });
@@ -183,10 +186,10 @@ describe('REST provider', function () {
 
         request
           .patch('http://localhost:4777/todo')
-          .send(JSON.stringify(original)),
+          .send(JSON.stringify(original))
           .set('Content-Type', 'application/json')
           .expect(200)
-          .end((error, response) => {          
+          .end((error, response) => {
             verify.patch(null, original, JSON.parse(response.body));
             done(error);
           });
@@ -196,7 +199,7 @@ describe('REST provider', function () {
         request
           .delete('http://localhost:4777/tasks/233')
           .expect(200)
-          .end(error, response) {            
+          .end((error, response) => {
             verify.remove(233, JSON.parse(response.body));
             done(error);
           });
@@ -206,10 +209,10 @@ describe('REST provider', function () {
         request
           .delete('http://localhost:4777/tasks')
           .expect(200)
-          .end((error, response) => {          
+          .end((error, response) => {
             verify.remove(null, JSON.parse(response.body));
             done(error);
-        });
+          });
       });
     });
 
@@ -221,7 +224,7 @@ describe('REST provider', function () {
           .end((error, response, body) => {
             verify.find(JSON.parse(body));
             done(error);
-        });
+          });
       });
 
       it('GET .get', done => {
@@ -336,149 +339,39 @@ describe('REST provider', function () {
     after(done => close(server, done));
 
     it('throws a 405 for undefined service methods and sets Allow header (#99)', done => {
-      request('http://localhost:4780/todo/dishes', (error, response, body) => {
-        assert.ok(response.statusCode === 200, 'Got OK status code for .get');
-        assert.deepEqual(JSON.parse(body), { description: 'You have to do dishes' }, 'Got expected object');
-        request({
-          method: 'post',
-          url: 'http://localhost:4780/todo'
-        }, (error, response, body) => {
-          assert.equal(response.headers.allow, 'GET,PATCH');
-          assert.ok(response.statusCode === 405, 'Got 405 for .create');
-          assert.deepEqual(JSON.parse(body), { message: 'Method `create` is not supported by this endpoint.' }, 'Error serialized as expected');
-          done();
+      request
+        .get('http://localhost:4780/todo/dishes')
+        .expect(200)
+        .end((error, response) => {
+          assert.deepEqual(JSON.parse(response.body), { description: 'You have to do dishes' }, 'Got expected object');
+
+          request
+            .post('http://localhost:4780/todo')
+            .expect(405)
+            .end((error, response) => {
+              assert.equal(response.headers.allow, 'GET,PATCH');
+              assert.deepEqual(JSON.parse(response.body), { message: 'Method `create` is not supported by this endpoint.' }, 'Error serialized as expected');
+              done();
+            });
         });
-      });
     });
 
     it('throws a 404 for undefined route', done => {
-      request('http://localhost:4780/todo/foo/bar', (error, response) => {
-        assert.ok(response.statusCode === 404, 'Got Not Found code');
-
-        done(error);
-      });
+      request
+        .get('http://localhost:4780/todo/foo/bar')
+        .expect(404)
+        .end((error, response) => {
+          done(error);
+        });
     });
 
     it('empty response sets 204 status codes, does not run other middleware (#391)', done => {
-      request('http://localhost:4780/todo', (error, response) => {
-        assert.ok(response.statusCode === 204, 'Got empty status code');
-
-        done(error);
-      });
-    });
-  });
-
-  it('sets service parameters and provider type', done => {
-    let service = {
-      get (id, params, callback) {
-        callback(null, params);
-      }
-    };
-
-    let server = feathers().configure(rest(rest.formatter))
-      .use(function (ctx, next) {
-        assert.ok(ctx.feathers, 'Feathers object initialized');
-        ctx.feathers.test = 'Happy';
-        next();
-      })
-      .use('service', service)
-      .listen(4778);
-
-    request('http://localhost:4778/service/bla?some=param&another=thing',
-      (error, response, body) => {
-        let expected = {
-          test: 'Happy',
-          provider: 'rest',
-          query: {
-            some: 'param',
-            another: 'thing'
-          }
-        };
-
-        assert.ok(response.statusCode === 200, 'Got OK status code');
-        assert.deepEqual(JSON.parse(body), expected, 'Got params object back');
-        close(server, done);
-      });
-  });
-
-  it('lets you set the handler manually', done => {
-    let app = feathers();
-
-    app.configure(rest(async function (ctx, next) {
-      ctx.format({
-        'text/plain': function () {
-          ctx.body = `The todo is: ${ctx.body.description}`;
-        }
-      });
-    }))
-      .use('/todo', {
-        get (id, params, callback) {
-          callback(null, { description: `You have to do ${id}` });
-        }
-      });
-
-    let server = app.listen(4776);
-    request('http://localhost:4776/todo/dishes', (error, response, body) => {
-      assert.equal(body, 'The todo is: You have to do dishes');
-      close(server, done);
-    });
-  });
-
-  it('Lets you configure your own middleware before the handler (#40)', done => {
-    let data = { description: 'Do dishes!', id: 'dishes' };
-    let app = feathers();
-
-    app.use(function defaultContentTypeMiddleware (ctx, next) {
-      let type = ctx.get('content-type') || 'application/json';
-      ctx.set('content-type', type);
-      next();
-    })
-    .configure(rest(rest.formatter))
-    .use(bodyParser()) // supports json
-    .use('/todo', {
-      create (data, params, callback) {
-        callback(null, data);
-      }
-    });
-
-    let server = app.listen(4775);
-    request({
-      method: 'POST',
-      url: 'http://localhost:4775/todo',
-      body: JSON.stringify(data)
-    }, (error, response, body) => {
-      assert.deepEqual(JSON.parse(body), data);
-      close(server, done);
-    });
-  });
-
-  it('Extend params with route params and allows id property (#76, #407)', done => {
-    const todoService = {
-      get (id, params) {
-        return Promise.resolve({
-          id,
-          appId: params.appId,
-          paramsId: params.id
+      request
+        .get('http://localhost:4780/todo')
+        .expect(204)
+        .end((error, response) => {
+          done(error);
         });
-      }
-    };
-
-    const app = feathers()
-      .configure(rest())
-      .use('/:appId/:id/todo', todoService);
-
-    const expected = {
-      id: 'dishes',
-      appId: 'theApp',
-      paramsId: 'myId'
-    };
-
-    const server = app.listen(6880).on('listening', function () {
-      request('http://localhost:6880/theApp/myId/todo/' + expected.id, (error, response, body) => {
-        assert.ok(response.statusCode === 200, 'Got OK status code');
-        assert.deepEqual(expected, JSON.parse(body));
-        close(server, done);
-      });
     });
   });
 });
