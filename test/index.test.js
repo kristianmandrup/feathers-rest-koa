@@ -3,7 +3,7 @@
 import assert from 'assert';
 import request from 'request';
 import feathers from 'feathers';
-import bodyParser from 'body-parser';
+import bodyParser from 'koa-bodyparser'
 import rest from '../src';
 import { Service as todoService, verify } from 'feathers-commons/lib/test-fixture';
 
@@ -13,7 +13,7 @@ describe('REST provider', function () {
 
     before(function () {
       app = feathers().configure(rest(rest.formatter))
-        .use(bodyParser.json())
+        .use(bodyParser()) // supports json
         .use('codes', {
           get (id, params, callback) {
             callback();
@@ -36,8 +36,8 @@ describe('REST provider', function () {
           get (id, params, callback) {
             callback(null, { description: `You have to do ${id}` });
           }
-        }, function (req, res, next) {
-          res.data.hook = res.hook;
+        }, function (ctx, next) {
+          ctx.body.hook = res.hook;
           next();
         });
 
@@ -61,9 +61,9 @@ describe('REST provider', function () {
           get () {
             return Promise.reject(new Error('I blew up'));
           }
-        }, function (error, req, res, next) {
-          res.status(500);
-          res.json({
+        }, function (ctx, next) {
+          ctx.status(500);
+          ctx.json({
             hook: res.hook,
             error
           });
@@ -339,8 +339,8 @@ describe('REST provider', function () {
           }
         });
 
-      app.use(function (req, res, next) {
-        if (typeof res.data !== 'undefined') {
+      app.use(function (ctx, next) {
+        if (typeof ctx.body !== 'undefined') {
           next(new Error('Should never get here'));
         } else {
           next();
@@ -348,12 +348,12 @@ describe('REST provider', function () {
       });
 
       // Error handler
-      app.use(function (error, req, res, next) {
-        if (res.statusCode < 400) {
-          res.status(500);
+      app.use(function (ctx, next) {
+        if (ctx.code < 400) {
+          ctx.status(500);
         }
 
-        res.json({ message: error.message });
+        ctx.json({ message: error.message });
       });
 
       server = app.listen(4780);
@@ -402,9 +402,9 @@ describe('REST provider', function () {
     };
 
     let server = feathers().configure(rest(rest.formatter))
-      .use(function (req, res, next) {
+      .use(function (ctx, next) {
         assert.ok(req.feathers, 'Feathers object initialized');
-        req.feathers.test = 'Happy';
+        ctx.feathers.test = 'Happy';
         next();
       })
       .use('service', service)
@@ -430,10 +430,10 @@ describe('REST provider', function () {
   it('lets you set the handler manually', done => {
     let app = feathers();
 
-    app.configure(rest(function (req, res) {
-      res.format({
+    app.configure(rest(async function (ctx) {
+      ctx.format({
         'text/plain': function () {
-          res.end(`The todo is: ${res.data.description}`);
+          ctx.end(`The todo is: ${res.data.description}`);
         }
       });
     }))
@@ -454,7 +454,7 @@ describe('REST provider', function () {
     let data = { description: 'Do dishes!', id: 'dishes' };
     let app = feathers();
 
-    app.use(function defaultContentTypeMiddleware (req, res, next) {
+    app.use(function defaultContentTypeMiddleware (ctx, next) {
       req.headers['content-type'] = req.headers['content-type'] || 'application/json';
       next();
     })

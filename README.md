@@ -17,7 +17,17 @@ This provider exposes [Feathers](http://feathersjs.com) services through a RESTf
 
 __Note:__ For the full API documentation go to [https://docs.feathersjs.com/api/rest.html](https://docs.feathersjs.com/api/rest.html).
 
+## Client
+
+The REST client has been extracted. In the future it will likely be in a separate repo `feathers-rest-client`.
+
 ## Quick example
+
+You can pass a `formatter` and additional `options` to the `rest` function.
+
+```js
+rest(formatter, opts)
+```
 
 ```js
 import Koa from 'koa';
