@@ -1,33 +1,34 @@
-# feathers-rest
+# feathers-rest-koa
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/feathersjs/feathers-rest.svg)](https://greenkeeper.io/)
+[![Greenkeeper badge](https://badges.greenkeeper.io/feathersjs/feathers-rest-koa.svg)](https://greenkeeper.io/)
 
-[![Build Status](https://travis-ci.org/feathersjs/feathers-rest.png?branch=master)](https://travis-ci.org/feathersjs/feathers-rest)
-[![Code Climate](https://codeclimate.com/github/feathersjs/feathers-rest/badges/gpa.svg)](https://codeclimate.com/github/feathersjs/feathers-rest)
-[![Test Coverage](https://codeclimate.com/github/feathersjs/feathers-rest/badges/coverage.svg)](https://codeclimate.com/github/feathersjs/feathers-rest/coverage)
-[![Dependency Status](https://img.shields.io/david/feathersjs/feathers-rest.svg?style=flat-square)](https://david-dm.org/feathersjs/feathers-rest)
-[![Download Status](https://img.shields.io/npm/dm/feathers-rest.svg?style=flat-square)](https://www.npmjs.com/package/feathers-rest)
+[![Build Status](https://travis-ci.org/feathersjs/feathers-rest-koa.png?branch=master)](https://travis-ci.org/feathersjs/feathers-rest-koa)
+[![Code Climate](https://codeclimate.com/github/feathersjs/feathers-rest-koa/badges/gpa.svg)](https://codeclimate.com/github/feathersjs/feathers-rest-koa)
+[![Test Coverage](https://codeclimate.com/github/feathersjs/feathers-rest-koa/badges/coverage.svg)](https://codeclimate.com/github/feathersjs/feathers-rest-koa/coverage)
+[![Dependency Status](https://img.shields.io/david/feathersjs/feathers-rest-koa.svg?style=flat-square)](https://david-dm.org/feathersjs/feathers-rest-koa)
+[![Download Status](https://img.shields.io/npm/dm/feathers-rest-koa.svg?style=flat-square)](https://www.npmjs.com/package/feathers-rest-koa)
 [![Slack Status](http://slack.feathersjs.com/badge.svg)](http://slack.feathersjs.com)
 
 > The Feathers REST API provider
 
 ## About
 
-This provider exposes [Feathers](http://feathersjs.com) services through a RESTful API using [Express](http://expressjs.com) that can be used with Feathers 1.x and 2.x as well as client support for Fetch, jQuery, Request, Superagent, axios and angular2+'s HTTP Service.
+This provider exposes [Feathers](http://feathersjs.com) services through a RESTful API using [Koa](http://koajs.com) that can be used with Feathers 1.x and 2.x as well as client support for Fetch, jQuery, Request, Superagent, axios and angular2+'s HTTP Service.
 
 __Note:__ For the full API documentation go to [https://docs.feathersjs.com/api/rest.html](https://docs.feathersjs.com/api/rest.html).
 
 ## Quick example
 
 ```js
+import Koa from 'koa';
 import feathers from 'feathers';
-import bodyParser from 'body-parser';
-import rest from 'feathers-rest';
+import bodyParser from 'koa-bodyparser'
+import rest from 'feathers-rest-koa';
 
-const app = feathers()
+const koa = new Koa()
+const app = feathers(koa)
   .configure(rest())
-  .use(bodyParser.json())
-  .use(bodyParser.urlencoded({ extended: true }))
+  .use(bodyParser())
   .use(function(req, res, next) {
     req.feathers.data = 'Hello world';
     next();
@@ -48,6 +49,8 @@ app.use('/:app/todos', {
 ```
 
 ## Client use
+
+On the client use `feathers-rest/client`
 
 ```js
 import feathers from 'feathers/client';
