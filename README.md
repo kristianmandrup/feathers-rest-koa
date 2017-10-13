@@ -87,6 +87,33 @@ const app = feathers()
     .configure(rest('http://baseUrl').angular(http, { Headers }))
 ```
 
+## Testing
+
+Run all tests
+
+`$ npm test` or `$ mocha`
+
+Run single test
+
+`$ mocha test/services/get.test.js`
+
+Run matching tests using Grep pattern
+
+`$ mocha --grep GET`
+
+To run a single test spec, use the `.only` (see [run-single-mocha-test](https://jaketrent.com/post/run-single-mocha-test/))
+
+```js
+// ...
+  describe('Services', () => {
+    it.only('GET .find', done => {
+      // ...
+    })
+  })
+```
+
+Enjoy!
+
 ## License
 
 Copyright (c) 2015

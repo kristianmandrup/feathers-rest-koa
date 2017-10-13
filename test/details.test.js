@@ -1,22 +1,19 @@
-/* eslint-disable handle-callback-err */
+import {
+  close,
+  //  configure,
+  assert,
+  request,
+  feathers,
+  bodyParser,
+  rest
+  // todoService,
+  // verify
+} from './config';
 
-import assert from 'assert';
-import request from 'supertest';
-import feathers from 'feathers';
-import bodyParser from 'koa-bodyparser';
-import rest from '../src';
-
-// Koa testing with supertest
-// http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
-
-function close (server, done) {
-  console.log('closing', server);
-}
-
-describe('REST provider', function () {
+describe('REST provider: details', function () {
   it('sets service parameters and provider type', done => {
     let service = {
-      get (id, params, callback) {
+      get(id, params, callback) {
         callback(null, params);
       }
     };
@@ -34,6 +31,7 @@ describe('REST provider', function () {
       .get('http://localhost:4778/service/bla?some=param&another=thing')
       .expect(200)
       .end((error, response) => {
+        if (error) assert.fail(error.message);
         let expected = {
           test: 'Happy',
           provider: 'rest',
@@ -51,15 +49,17 @@ describe('REST provider', function () {
     let app = feathers();
 
     app.configure(rest(async function (ctx, next) {
-      ctx.format({
-        'text/plain': function () {
-          ctx.body = `The todo is: ${ctx.body.description}`;
-        }
-      });
-    }))
+        ctx.format({
+          'text/plain': function () {
+            ctx.body = `The todo is: ${ctx.body.description}`;
+          }
+        });
+      }))
       .use('/todo', {
-        get (id, params, callback) {
-          callback(null, { description: `You have to do ${id}` });
+        get(id, params, callback) {
+          callback(null, {
+            description: `You have to do ${id}`
+          });
         }
       });
 
@@ -67,33 +67,38 @@ describe('REST provider', function () {
     request
       .get('http://localhost:4776/todo/dishes')
       .end((error, response) => {
+        if (error) assert.fail(error.message);
         assert.equal(response.body, 'The todo is: You have to do dishes');
         close(server, done);
       });
   });
 
   it('Lets you configure your own middleware before the handler (#40)', done => {
-    let data = { description: 'Do dishes!', id: 'dishes' };
+    let data = {
+      description: 'Do dishes!',
+      id: 'dishes'
+    };
     let app = feathers();
 
-    app.use(function defaultContentTypeMiddleware (ctx, next) {
-      let type = ctx.get('content-type') || 'application/json';
-      ctx.set('content-type', type);
-      next();
-    })
-    .configure(rest(rest.formatter))
-    .use(bodyParser()) // supports json
-    .use('/todo', {
-      create (data, params, callback) {
-        callback(null, data);
-      }
-    });
+    app.use(function defaultContentTypeMiddleware(ctx, next) {
+        let type = ctx.get('content-type') || 'application/json';
+        ctx.set('content-type', type);
+        next();
+      })
+      .configure(rest(rest.formatter))
+      .use(bodyParser()) // supports json
+      .use('/todo', {
+        create(data, params, callback) {
+          callback(null, data);
+        }
+      });
 
     let server = app.listen(4775);
     request
       .post('http://localhost:4775/todo')
       .send(JSON.stringify(data))
       .end((error, response) => {
+        if (error) assert.fail(error.message);
         assert.deepEqual(JSON.parse(response.body), data);
         close(server, done);
       });
@@ -101,7 +106,7 @@ describe('REST provider', function () {
 
   it('Extend params with route params and allows id property (#76, #407)', done => {
     const todoService = {
-      get (id, params) {
+      get(id, params) {
         return Promise.resolve({
           id,
           appId: params.appId,
@@ -125,6 +130,7 @@ describe('REST provider', function () {
         .get('http://localhost:6880/theApp/myId/todo/' + expected.id)
         .expect(200)
         .end((error, response) => {
+          if (error) assert.fail(error.message);
           assert.deepEqual(expected, JSON.parse(response.body));
           close(server, done);
         });

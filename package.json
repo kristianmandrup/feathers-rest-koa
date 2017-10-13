@@ -39,8 +39,8 @@
     "compile": "rimraf -rf lib/ && babel -d lib/ src/",
     "watch": "babel --watch -d lib/ src/",
     "lint": "eslint-if-supported semistandard --fix",
-    "mocha": "mocha --opts mocha.opts",
-    "mocha:rec": "nodemon --exec \"mocha --opts mocha.opts --recursive\"",
+    "mocha": "mocha",
+    "mocha:recurse": "nodemon --exec \"mocha --recursive\"",
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts mocha.opts",
     "test": "npm run compile && npm run lint && npm run coverage"
   },
