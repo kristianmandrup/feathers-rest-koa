@@ -1,7 +1,5 @@
 // TODO: Pure Koa server REST test without feathers
 // To ensure we can correctly test a Koa REST endpoint using supertest
-import request from 'supertest';
-
 var app = require('./app');
 var request = require('supertest').agent(app.listen());
 
