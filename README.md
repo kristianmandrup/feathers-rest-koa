@@ -114,6 +114,10 @@ To run a single test spec, use the `.only` (see [run-single-mocha-test](https://
 
 Enjoy!
 
+## Development
+
+Please start from the `test/koa` folder and make sure that the routes added by the `Routes` class function as expected/required by feathers. Then move on from there ;)
+
 ## License
 
 Copyright (c) 2015
