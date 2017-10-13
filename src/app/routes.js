@@ -16,6 +16,7 @@ export class Routes {
   constructor (app, opts = {}) {
     this.router = Router();
     this.app = app;
+    this.logging = opts.logging
 
     let {
       before,
@@ -26,6 +27,11 @@ export class Routes {
     this.before = before;
     this.after = after;
     this.service = service;
+  }
+
+  log(...msgs) {
+    if (!this.logging) return
+    console.log(...msgs)
   }
 
   set uri (_uri) {
@@ -63,8 +69,21 @@ export class Routes {
       router
     } = this;
 
+    this.log('configRoute', {
+      before,
+      after
+    })
     // TODO: fix for koa
-    router[httpMethod].apply(route, before.concat(app.rest[serviceMethod](service), after));
+    let restMethod = app.rest[serviceMethod](service)
+    let routeFun = before.concat(restMethod, after)
+
+    this.log('configRoute', {
+      restMethod,
+      routeFun
+    })
+
+    this.log('adding route', httpMethod, 'to router', router !== null)
+    router[httpMethod].apply(route, routeFun);
   }
 
   configRouteMethods (route, methodMap = {}) {

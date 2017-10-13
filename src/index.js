@@ -9,6 +9,7 @@ export function createRegistrator (app) {
   return function (path, service, options) {
     const uri = path.indexOf('/') === 0 ? path : `/${path}`;
 
+    // feathers middleware
     let middleware = (options || {}).middleware || {};
     let before = middleware.before || [];
     let after = middleware.after || [];
