@@ -33,26 +33,31 @@ export {
   verify
 };
 
-let server, app;
+let serve, app;
 
 export function configure() {
-  before(function () {
-    app = feathers().configure(rest(rest.formatter))
-      .use(bodyParser()) // supports json
-      .use('codes', {
-        get(id, params, callback) {
-          callback();
-        },
+  app = feathers().configure(rest())
+    // .use(bodyParser()) // supports json
+    .use('codes', {
+      get(id, params, callback) {
+        callback();
+      },
 
-        create(data, params, callback) {
-          callback(null, data);
-        }
-      })
-      .use('todo', todoService);
-    server = app.listen(4777, () => app.use('tasks', todoService));
-  });
+      create(data, params, callback) {
+        callback(null, data);
+      }
+    })
+    .use('todo', todoService);
 
-  after(done => close(server, done));
+  function serve() {
+    app.listen(4777, () => app.use('tasks', todoService));
+  }
 
-  return app;
+  let req = request.agent(serve())
+
+  return {
+    req,
+    app,
+    serve
+  };
 }

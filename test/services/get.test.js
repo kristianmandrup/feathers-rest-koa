@@ -9,31 +9,35 @@ import {
   verify
 } from '../config';
 
+let req
 describe('REST provider', function () {
   describe('CRUD: get', function () {
-    let config = configure.bind(this);
-    config();
+    before(done => {
+      let config = configure.bind(this)()
+      req = config.req
+    })
 
     describe('Services', () => {
       it.only('GET .find', done => {
-        request
-          .get('http://localhost:4777/todo')
+        req
+          .get('/todo')
           .expect(200)
           .end((error, response, body) => {
+            if (error) assert.fail(error.message);
             verify.find(JSON.parse(body));
             done(error);
           });
       });
 
-      it('GET .get', done => {
-        request
-          .get('http://localhost:4777/todo/dishes')
-          .expect(200)
-          .end((error, response, body) => {
-            verify.get('dishes', JSON.parse(body));
-            done(error);
-          });
-      });
+      // it('GET .get', done => {
+      //   req
+      //     .get('/todo/dishes')
+      //     .expect(200)
+      //     .end((error, response, body) => {
+      //       verify.get('dishes', JSON.parse(body));
+      //       done(error);
+      //     });
+      // });
     });
   });
 });
