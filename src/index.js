@@ -1,6 +1,6 @@
 import makeDebug from 'debug';
 import wrappers from './wrappers';
-import Routes from './app/routes';
+import { createRoutes } from './app/routes';
 import jsonBody from 'koa-json-body';
 
 const debug = makeDebug('feathers-rest-koa');
@@ -13,7 +13,7 @@ export function createRegistrator (app) {
     let before = middleware.before || [];
     let after = middleware.after || [];
 
-    const routes = new Routes(app, {
+    const routes = createRoutes(app, {
       before,
       after,
       service

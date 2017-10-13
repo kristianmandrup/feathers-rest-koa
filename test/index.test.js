@@ -11,7 +11,7 @@ import { Service as todoService, verify } from 'feathers-commons/lib/test-fixtur
 // http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
 
 function close (server, done) {
-  console.log('closing', server);
+  // console.log('closing', server);
 }
 
 describe('REST provider', function () {

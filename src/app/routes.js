@@ -1,5 +1,20 @@
+// TODO: use koa-routes
+import Router from 'koa-router';
+const RESTmethods = {
+  get: 'find',
+  post: 'create',
+  patch: 'patch',
+  put: 'update',
+  delete: 'remove'
+};
+
+export function createRoutes (app, opts = {}) {
+  return new Routes(app, opts);
+}
+
 export class Routes {
   constructor (app, opts = {}) {
+    this.router = Router();
     this.app = app;
 
     let {
@@ -19,48 +34,63 @@ export class Routes {
   }
 
   configure (uri) {
-    let { app } = this;
-    this.baseRoute = app.route(uri);
-    this.idRoute = app.route(`${uri}/:__feathersId`);
+    // this.baseRoute = app.route(uri);
+    // this.idRoute = app.route(`${uri}/:__feathersId`);
+
+    // TODO: use koa router, should be names only
+    this.baseRoute = uri;
+    this.idRoute = `${uri}/:__feathersId`;
+  }
+
+  configAll () {
+    this
+      .configRoutes()
+      .addRouter();
+  }
+
+  configRoutes () {
+    this
+      .configBaseRoute()
+      .configIdRoute();
+  }
+
+  configRoute (route, httpMethod, serviceMethod) {
+    let {
+      app,
+      before,
+      after,
+      service,
+      router
+    } = this;
+
+    // TODO: fix for koa
+    router[httpMethod].apply(route, before.concat(app.rest[serviceMethod](service), after));
+  }
+
+  configRouteMethods (route, methodMap = {}) {
+    let methods = Object.keys(methodMap);
+    methods.map((httpMethod) => {
+      let serviceMethod = methodMap[httpMethod];
+      this.configRoute(route, httpMethod, serviceMethod);
+    });
   }
 
   configBaseRoute () {
-    let {
-      app,
-      baseRoute,
-      before,
-      after,
-      service
-    } = this;
-
-    // GET / -> service.find(cb, params)
-    baseRoute.get.apply(baseRoute, before.concat(app.rest.find(service), after));
-    // POST / -> service.create(data, params, cb)
-    baseRoute.post.apply(baseRoute, before.concat(app.rest.create(service), after));
-    // PATCH / -> service.patch(null, data, params)
-    baseRoute.patch.apply(baseRoute, before.concat(app.rest.patch(service), after));
-    // PUT / -> service.update(null, data, params)
-    baseRoute.put.apply(baseRoute, before.concat(app.rest.update(service), after));
-    // DELETE / -> service.remove(null, params)
-    baseRoute.delete.apply(baseRoute, before.concat(app.rest.remove(service), after));
+    this.configRouteMethods(this.baseRoute, RESTmethods);
+    return this;
   }
 
   configIdRoute () {
-    let {
-      app,
-      idRoute,
-      before,
-      after,
-      service
-    } = this;
+    this.configRouteMethods(this.idRoute, RESTmethods);
+    return this;
+  }
 
-    // GET /:id -> service.get(id, params, cb)
-    idRoute.get.apply(idRoute, before.concat(app.rest.get(service), after));
-    // PUT /:id -> service.update(id, data, params, cb)
-    idRoute.put.apply(idRoute, before.concat(app.rest.update(service), after));
-    // PATCH /:id -> service.patch(id, data, params, callback)
-    idRoute.patch.apply(idRoute, before.concat(app.rest.patch(service), after));
-    // DELETE /:id -> service.remove(id, params, cb)
-    idRoute.delete.apply(idRoute, before.concat(app.rest.remove(service), after));
+  addRouter () {
+    let { app, router } = this;
+    app
+      .use(router.routes())
+      .use(router.allowedMethods());
+
+    return this;
   }
 }
