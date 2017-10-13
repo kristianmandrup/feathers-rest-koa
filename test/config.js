@@ -13,9 +13,15 @@ import {
 // Koa testing with supertest
 // http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
 
-export function close (server, done) {
+export function close(server, done) {
   // console.log('closing', server);
 }
+
+export {
+  Routes,
+  createRoutes
+}
+from '../src/app'
 
 export {
   assert,
@@ -29,16 +35,16 @@ export {
 
 let server, app;
 
-export function configure () {
+export function configure() {
   before(function () {
     app = feathers().configure(rest(rest.formatter))
       .use(bodyParser()) // supports json
       .use('codes', {
-        get (id, params, callback) {
+        get(id, params, callback) {
           callback();
         },
 
-        create (data, params, callback) {
+        create(data, params, callback) {
           callback(null, data);
         }
       })

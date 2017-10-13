@@ -31,6 +31,7 @@ export class Routes {
 
   log(...msgs) {
     if (!this.logging) return;
+    throw Error('logging')
     console.log(...msgs);
   }
 
@@ -76,20 +77,30 @@ export class Routes {
     });
     // TODO: fix for koa
     let restMethod = app.rest[serviceMethod](service);
-    let routeFun = before.concat(restMethod, after);
+    let routeFuns = before.concat(restMethod, after);
+    let routeFun = async function (next) {
+      let promises = routeFuns.map(async fun => await fun(next))
+      return await Promise.all(promises)
+    }
 
     this.log('configRoute', {
       restMethod,
       routeFun
     });
 
-    this.log('adding route', httpMethod, 'to router', router !== null);
-
     this.addRoute(httpMethod, route, routeFun)
   }
 
   addRoute(httpMethod, route, routeFun) {
-    this.router[httpMethod].apply(route, routeFun);
+    this.log('adding route', {
+      router: this.router,
+      httpMethod,
+      route,
+      routeFun
+    });
+    console.error(httpMethod, route, routeFun)
+
+    this.router[httpMethod](route, routeFun);
   }
 
   configRouteMethods(route, methodMap = {}) {
