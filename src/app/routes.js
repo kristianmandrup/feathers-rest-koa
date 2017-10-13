@@ -8,12 +8,12 @@ const RESTmethods = {
   delete: 'remove'
 };
 
-export function createRoutes (app, opts = {}) {
+export function createRoutes(app, opts = {}) {
   return new Routes(app, opts);
 }
 
 export class Routes {
-  constructor (app, opts = {}) {
+  constructor(app, opts = {}) {
     this.router = Router();
     this.app = app;
     this.logging = opts.logging;
@@ -29,17 +29,17 @@ export class Routes {
     this.service = service;
   }
 
-  log (...msgs) {
+  log(...msgs) {
     if (!this.logging) return;
     console.log(...msgs);
   }
 
-  set uri (_uri) {
+  set uri(_uri) {
     this._uri = _uri;
     this.configure(_uri);
   }
 
-  configure (uri) {
+  configure(uri) {
     // this.baseRoute = app.route(uri);
     // this.idRoute = app.route(`${uri}/:__feathersId`);
 
@@ -48,25 +48,26 @@ export class Routes {
     this.idRoute = `${uri}/:__feathersId`;
   }
 
-  configAll () {
+  configAll() {
     this
       .configRoutes()
       .addRouter();
   }
 
-  configRoutes () {
+  configRoutes() {
     this
       .configBaseRoute()
-      .configIdRoute();
+      .configIdRoute()
+
+    return this
   }
 
-  configRoute (route, httpMethod, serviceMethod) {
+  configRoute(route, httpMethod, serviceMethod) {
     let {
       app,
       before,
       after,
       service,
-      router
     } = this;
 
     this.log('configRoute', {
@@ -83,10 +84,15 @@ export class Routes {
     });
 
     this.log('adding route', httpMethod, 'to router', router !== null);
-    router[httpMethod].apply(route, routeFun);
+
+    this.addRoute(httpMethod, route, routeFun)
   }
 
-  configRouteMethods (route, methodMap = {}) {
+  addRoute(httpMethod, route, routeFun) {
+    this.router[httpMethod].apply(route, routeFun);
+  }
+
+  configRouteMethods(route, methodMap = {}) {
     let methods = Object.keys(methodMap);
     methods.map((httpMethod) => {
       let serviceMethod = methodMap[httpMethod];
@@ -94,18 +100,21 @@ export class Routes {
     });
   }
 
-  configBaseRoute () {
+  configBaseRoute() {
     this.configRouteMethods(this.baseRoute, RESTmethods);
     return this;
   }
 
-  configIdRoute () {
+  configIdRoute() {
     this.configRouteMethods(this.idRoute, RESTmethods);
     return this;
   }
 
-  addRouter () {
-    let { app, router } = this;
+  addRouter() {
+    let {
+      app,
+      router
+    } = this;
     app
       .use(router.routes())
       .use(router.allowedMethods());

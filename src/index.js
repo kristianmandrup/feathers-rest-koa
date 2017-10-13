@@ -1,11 +1,13 @@
 import makeDebug from 'debug';
 import wrappers from './wrappers';
-import { createRoutes } from './app/routes';
+import {
+  createRoutes
+} from './app/routes';
 import jsonBody from 'koa-json-body';
 
 const debug = makeDebug('feathers-rest-koa');
 
-export function createRegistrator (app) {
+export function createRegistrator(app) {
   return function (path, service, options) {
     const uri = path.indexOf('/') === 0 ? path : `/${path}`;
 
@@ -20,20 +22,20 @@ export function createRegistrator (app) {
       service
     });
     routes.uri = uri;
-    routes.configBaseRoute();
-    routes.configIdRoute();
-
+    routes.configAll();
     debug(`Adding REST provider for service \`${path}\` at base route \`${uri}\``);
   };
 }
 
 export class Registrator {
-  constructor (app) {
+  constructor(app) {
     this.app = app;
   }
 
-  register () {
-    let { app } = this;
+  register() {
+    let {
+      app
+    } = this;
     let registrator = createRegistrator(app);
     // Register the REST provider
     app.providers.push(registrator);
@@ -41,15 +43,18 @@ export class Registrator {
   }
 }
 
-export function defaultRegister (app) {
+export function defaultRegister(app) {
   new Registrator(app).register();
 }
 
-export default function rest (opts = {}) {
+export default function rest(opts = {}) {
   return function () {
     const app = this;
 
-    let jsonOpts = Object.assign({ limit: '10kb', fallback: true }, opts);
+    let jsonOpts = Object.assign({
+      limit: '10kb',
+      fallback: true
+    }, opts);
     let jsonHandler = opts.handler || jsonBody(jsonOpts);
 
     app.use(jsonHandler);
