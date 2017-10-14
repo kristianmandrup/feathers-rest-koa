@@ -10,13 +10,18 @@ const expressify = require('feathers-express')
 const rest = require('../../src');
 const testCrud = require('../crud');
 
+// default express configuration functions
+const defaults = require('../../src/express');
+
 describe('REST provider', function () {
   describe('base functionality', () => {
     it('throws an error if you did not expressify', () => {
       const app = feathers();
 
       try {
-        app.configure(rest());
+        app.configure(rest({
+          defaults
+        }));
         assert.ok(false, 'Should never get here');
       } catch (e) {
         assert.equal(e.message, 'feathers-rest needs a express compatible app. Feathers apps have to wrapped with feathers-express first.');

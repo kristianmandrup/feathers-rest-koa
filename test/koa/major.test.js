@@ -9,6 +9,8 @@ const {
 const koaify = require('../src/koa/ify')
 const rest = require('../src');
 const testCrud = require('./crud');
+// default express configuration functions
+const defaults = require('../../src/koa');
 
 describe('REST provider', function () {
   describe('base functionality', () => {
@@ -16,7 +18,9 @@ describe('REST provider', function () {
       const app = feathers();
 
       try {
-        app.configure(rest());
+        app.configure(rest({
+          defaults
+        }));
         assert.ok(false, 'Should never get here');
       } catch (e) {
         assert.equal(e.message, 'feathers-rest needs a Koa compatible app. Feathers apps have to wrapped with feathers-koa first.');

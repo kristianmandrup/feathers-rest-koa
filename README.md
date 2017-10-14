@@ -13,15 +13,15 @@
 
 ## Status
 
-Under development!
+*Under development!*
 
-Using and based on `major` branches from [feathers](https://github.com/feathersjs/feathers) and [feathers-rest](https://github.com/feathersjs/feathers-rest).
+Bassed on the `major` branch (v3) of [feathers](https://github.com/feathersjs/feathers) and [feathers-rest](https://github.com/feathersjs/feathers-rest).
 
 We might need a [feathers-koa](https://github.com/kristianmandrup/feathers-koa) package, similar to [feathers-express](https://github.com/feathersjs/feathers-express).
 
 `feathers-express` exports a function (by convention known as `expressify`) to wrap a feathers app for that particular web application framework.
 
-Please help work on [feathers-koa](https://github.com/kristianmandrup/feathers-koa) to make it a reality!
+Please help work on [feathers-koa](https://github.com/kristianmandrup/feathers-koa) to make it a reality! Initial work has started...
 
 ## About
 
@@ -29,19 +29,28 @@ This provider exposes [Feathers](http://feathersjs.com) services through a RESTf
 
 __Note:__ For the full API documentation go to [https://docs.feathersjs.com/api/rest.html](https://docs.feathersjs.com/api/rest.html).
 
-## Client
+## REST Client
 
 The REST client has been extracted. In the future it will likely be in a separate repo `feathers-rest-client`.
+
+Please help make this happen ;)
 
 ## Quick example
 
 You can optionally pass options to `rest` function to customize the internal behavior as needed (see *rest method* section below for details and example)
 
 ```js
-rest(opts)
+// import express defaults (or import/define your own)
+import { defaults } from 'feathers-rest-koa/lib/express'
+import rest from 'feathers-rest-koa' // not hardcoded to koa ;)
+
+app.configure(rest({
+  defaults,
+  logging: true
+}));
 ```
 
-Basic config, using default `rest` setup.
+Basic config, using default Koa `rest` setup.
 
 ```js
 import Koa from 'koa';
@@ -51,7 +60,7 @@ import rest from 'feathers-rest-koa';
 
 const koa = new Koa()
 const app = feathers(koa)
-  .configure(rest()) // <-- configure with Koa REST
+  .configure(rest()) // <-- configure Feathers app with Koa REST
   .use(bodyParser())
   .use(function(req, res, next) {
     req.feathers.data = 'Hello world';
@@ -118,40 +127,44 @@ The main `rest` method has been made more generic and customisable.
 
 ```js
 import {
-  defaultConfigJson,
-  defaultConfigFeathersRest,
-  defaultRegister
+  defaults as _defaults
 } from './koa'
 
 export default function rest(opts = {}) {
   return function () {
+    const defaults = opts.defaults || _defaults || {}
     const app = this;
-    let configJson = opts.configJson || defaultConfigJson
+    app.rest = wrappers;
+
+    let configJson = opts.configJson || defaults.configJson
     configJson(app, opts)
 
-    let configFeathersRest = opts.configJson || defaultConfigFeathersRest
-    configFeathersRest(app, opts)
+    let configProvider = opts.configProvider || defaults.configProvider
+    configProvider(app, opts)
 
-    app.rest = wrappers;
-    let register = opts.register || defaultRegister;
-    register(app, opts);
+    let configRest = opts.configRest || defaults.configRest;
+    configRest(app, opts);
   };
 }
 ```
 
-You can now pass in custom config/register functions via the `opts` parameter.
-Note: Each of the optional functions have the signature `(app, opts)`
+### Customizing the REST configuration
+
+You can pass in custom configuration functions via the `opts` parameter.
+Each of the optional functions have the signature `(app, opts)`
 
 ```js
-let opts = {
+let defaults = {
   configJson,
-  configFeathersRest,
-  register: (app, opts) => {
+  configProvider,
+  configRest: (app, opts) => {
     // ...
   }
 }
 let app = feathers()
-  .configure(rest(opts))
+  .configure(rest({
+    defaults
+  }))
 ```
 
 ## Development
@@ -194,18 +207,51 @@ Been trying to integrate the work done in [feathers#major](https://github.com/fe
 
 Please follow along in this [issue #133](https://github.com/feathersjs/feathers-rest/issues/133#issuecomment-336619412)
 
-Main issue is how to add the mws to Koa for a given route. Perhaps should be done more centrally? Please advice
+Main issue is how to add multiple middleware functions to Koa for a given route using the [koa-router](https://github.com/alexmingoia/koa-router)
 
 ```js
-  // route here is the name for now (in Koa Routes class)
-  // route is a real route object for express
   configRouteMws(route, httpMethod, routeMws) {
-    this.error('configRouteMw: how to add route Mw for Koa!?')
+    this.notImplemented('configRouteMws')
   }
+```
+
+## Architecture
+
+- `Routes` add all feathers REST routes
+- `Route` create/add single route
+- `Logger` logging/debugging and error handling
+
+### Feathers REST configuration
+
+- `configJson` configure feathers with JSON body parsing
+- `configProvider` set feathers REST provider (meta data)
+- `configRest` add REST routes
+
+### Routes
+
+The `Routes` class can be extended for your own framework wrapper. It should include methods to add `base` and `id` routes to the feathers app and/or a router of your choice.
+
+### Route
+
+The `Route` class can be extended for your own framework wrapper. It should include methods to create and add a single route to the feathers app and/or a router of your choice.
+
+### Wrapper
+
+Standard Feathers service method wrapper for routes
+
+```js
+function createWrapper(method, getArgs, opts) {
+  return service => {
+    // return function to handle a service request for given app framework
+    // (such as express or koa)
+    return routeHandler
+    }
+  }
+}
 ```
 
 ## License
 
-Copyright (c) 2015
+Copyright (c) 2017
 
 Licensed under the [MIT license](LICENSE).
