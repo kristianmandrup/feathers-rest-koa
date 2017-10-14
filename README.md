@@ -192,6 +192,8 @@ We (likely?) need to create a `koaify` method, similar to `expressify` from [fea
 
 See [feathers-koa](https://github.com/kristianmandrup/feathers-koa).
 
+Also see the [hmudesign/feathers-koa](https://github.com/hmudesign/feathers-koa) which may be a much better starting point!
+
 ```js
   // FIX: need to wrap feathers app with koaify!!
   app = feathers()
