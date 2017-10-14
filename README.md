@@ -130,13 +130,19 @@ function getHandler(method, getArgs, service, opts = {}) {
 The main `rest` method has been made more generic and customisable.
 
 ```js
+import {
+  defaultConfigJson,
+  defaultConfigFeathersRest,
+  defaultRegister
+} from './koa'
+
 export default function rest(opts = {}) {
   return function () {
     const app = this;
-    let configJson = opts.configJson || koaConfigJson
+    let configJson = opts.configJson || defaultConfigJson
     configJson(app, opts)
 
-    let configFeathersRest = opts.configJson || koaConfigFeathersRest
+    let configFeathersRest = opts.configJson || defaultConfigFeathersRest
     configFeathersRest(app, opts)
 
     app.rest = wrappers;
@@ -191,6 +197,8 @@ Currently the problem is that feathers doesn't seem to add the Koa REST routes v
 ```
 
 We likely need to integrate the work done in [feathers#major](https://github.com/feathersjs/feathers-rest/tree/major) (v3) branch.
+
+Please follow along in this [issue #133](https://github.com/feathersjs/feathers-rest/issues/133#issuecomment-336619412)
 
 ## License
 

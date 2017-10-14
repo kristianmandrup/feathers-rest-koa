@@ -21,7 +21,7 @@ export {
   Routes,
   createRoutes
 }
-from '../src/app'
+from '../src/koa/routes'
 
 export {
   assert,

@@ -27,72 +27,14 @@ const allowedMethods = function (service) {
     .filter((value, index, list) => list.indexOf(value) === index);
 };
 
-// create and return object with operations to work on ctx or response
-function koaCreateSetter(ctx) {
-  let _ctx = ctx
-  return {
-    setStatus: (code) => {
-      _ctx.code = code
-    },
-    setHeader: (name, value) => {
-      _ctx.set(name, value)
-    }
-  }
-}
+import {
+  createWrapper
+} from './koa'
 
 // A function that returns the middleware for a given method and service
 // `getArgs` is a function that should return additional leading service arguments
-function getHandler(method, getArgs, service, opts = {}) {
-  return async function (ctx, next) {
-    let createSetter = opts.createSetter || koaCreateSetter
-    let setter = createSetter(ctx)
-
-    setter.setHeader('Allow', allowedMethods(service).join(','));
-
-    // Check if the method exists on the service at all. Send 405 (Method not allowed) if not
-    if (typeof service[method] !== 'function') {
-      debug(`Method '${method}' not allowed on '${req.url}'`);
-      res.code = statusCodes.methodNotAllowed;
-      return next(new errors.MethodNotAllowed(`Method \`${method}\` is not supported by this endpoint.`));
-    }
-
-    let params = Object.assign({}, req.params || {});
-    delete params.__feathersId;
-
-    // Grab the service parameters. Use req.feathers and set the query to req.query
-    params = Object.assign({
-      query: req.query || {}
-    }, params, req.feathers);
-
-    // Run the getArgs callback, if available, for additional parameters
-    const args = getArgs(req, res, next);
-
-    // The service success callback which sets res.data or calls next() with the error
-    const callback = function (error, data) {
-      const hookArgs = args.concat([params, callback]);
-
-      if (error) {
-        debug(`Error in REST handler: \`${error.message || error}\``);
-        res.hook = hookObject(method, 'error', hookArgs);
-        return next(error);
-      }
-
-      res.data = data;
-      res.hook = hookObject(method, 'after', hookArgs);
-
-      if (!data) {
-        debug(`No content returned for '${req.url}'`);
-        setter.setCode(statusCodes.noContent);
-      } else if (method === 'create') {
-        setter.setCode(statusCodes.created);
-      }
-
-      return next();
-    };
-
-    debug(`REST handler calling \`${method}\` from \`${req.url}\``);
-    service[method].apply(service, args.concat([params, callback]));
-  };
+function getHandler(method, getArgs, opts = {}) {
+  return createWrapper(method, getArgs, opts)
 }
 
 // Returns no leading parameters
