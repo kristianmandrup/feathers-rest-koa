@@ -2,6 +2,7 @@ export class Logger {
   constructor(app, opts = {}) {
     this.opts = opts
     this.logging = opts.logging;
+    process.env.DEBUG = process.env.DEBUG || opts.debug
   }
 
   get label() {

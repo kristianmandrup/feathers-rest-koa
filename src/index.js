@@ -1,6 +1,6 @@
 import wrappers from './wrappers';
 import {
-  defaults as _defaults
+  config as defaultConfig
 } from './koa'
 
 export default function rest(opts = {}) {
@@ -9,13 +9,7 @@ export default function rest(opts = {}) {
     const app = this;
     app.rest = wrappers;
 
-    let configJson = opts.configJson || defaults.configJson
-    configJson(app, opts)
-
-    let configProvider = opts.configProvider || defaults.configProvider
-    configProvider(app, opts)
-
-    let configRest = opts.configRest || defaults.configRest;
-    configRest(app, opts);
+    let config = opts.config || defaultConfig
+    config(app, opts)
   };
 }

@@ -39,17 +39,6 @@ Please help make this happen ;)
 
 You can optionally pass options to `rest` function to customize the internal behavior as needed (see *rest method* section below for details and example)
 
-```js
-// import express defaults (or import/define your own)
-import { defaults } from 'feathers-rest-koa/lib/express'
-import rest from 'feathers-rest-koa' // not hardcoded to koa ;)
-
-app.configure(rest({
-  defaults,
-  logging: true
-}));
-```
-
 Basic config, using default Koa `rest` setup.
 
 ```js
@@ -80,6 +69,27 @@ app.use('/:app/todos', {
   }
 });
 ```
+
+## Customization
+
+Configuring REST for a specific/alternative web server such as Express, with debug and logging enabled.
+
+```js
+// import express defaults (or import/define your own)
+import { defaults } from 'feathers-rest-koa/lib/express'
+import rest from 'feathers-rest-koa' // not hardcoded to koa ;)
+
+app.configure(rest({
+  defaults,
+  debug: 'feathers-koa', // set debug mode (see https://www.npmjs.com/package/debug)
+  logging: true // enable logging
+}));
+```
+
+Debug modes (currently) available:
+
+- `feathers:rest`
+- `feathers:koa`
 
 ## Testing
 
@@ -126,8 +136,9 @@ function getHandler(method, getArgs, service, opts = {}) {
 The main `rest` method has been made more generic and customisable.
 
 ```js
+import wrappers from './wrappers';
 import {
-  defaults as _defaults
+  config as defaultConfig
 } from './koa'
 
 export default function rest(opts = {}) {
@@ -136,14 +147,8 @@ export default function rest(opts = {}) {
     const app = this;
     app.rest = wrappers;
 
-    let configJson = opts.configJson || defaults.configJson
-    configJson(app, opts)
-
-    let configProvider = opts.configProvider || defaults.configProvider
-    configProvider(app, opts)
-
-    let configRest = opts.configRest || defaults.configRest;
-    configRest(app, opts);
+    let config = opts.config || defaultConfig
+    config(app, opts)
   };
 }
 ```
@@ -154,16 +159,13 @@ You can pass in custom configuration functions via the `opts` parameter.
 Each of the optional functions have the signature `(app, opts)`
 
 ```js
-let defaults = {
-  configJson,
-  configProvider,
-  configRest: (app, opts) => {
-    // ...
-  }
+function config(app, opts) {
+  // configures app as needed
 }
+
 let app = feathers()
   .configure(rest({
-    defaults
+    config
   }))
 ```
 

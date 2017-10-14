@@ -12,6 +12,10 @@ const testCrud = require('../crud');
 // default express configuration functions
 const defaults = require('../../src/koa');
 
+function close(server) {
+  // ??
+}
+
 describe('REST provider', function () {
   describe('base functionality', () => {
     it('throws an error if you did not koaify', () => {
@@ -65,7 +69,7 @@ describe('REST provider', function () {
         .then(res => {
           assert.equal(res.data, 'The todo is: You have to do dishes');
         })
-        .then(() => server.close());
+        .then(() => close(server));
     });
 
     it('lets you set no handler', () => {
@@ -88,7 +92,7 @@ describe('REST provider', function () {
 
       return axios.get('http://localhost:5775/todo-handler/dishes')
         .then(res => assert.deepEqual(res.data, data))
-        .then(() => server.close());
+        .then(() => close(server));
     });
   });
 
@@ -269,7 +273,7 @@ describe('REST provider', function () {
           assert.ok(res.status === 200, 'Got OK status code');
           assert.deepEqual(res.data, expected, 'Got params object back');
         })
-        .then(() => server.close());
+        .then(() => close(server));
     });
 
     it('Lets you configure your own middleware before the handler (#40)', () => {
@@ -304,7 +308,7 @@ describe('REST provider', function () {
       return axios(options)
         .then(res => {
           assert.deepEqual(res.data, data);
-          server.close();
+          close(server);
         });
     });
 
@@ -343,7 +347,7 @@ describe('REST provider', function () {
             after: ['after first', 'after second']
           });
         })
-        .then(() => server.close());
+        .then(() => close(server));
     });
 
     it('formatter does nothing when there is no res.data', () => {
@@ -359,7 +363,7 @@ describe('REST provider', function () {
 
       return axios.get('http://localhost:7988/test')
         .then(res => assert.deepEqual(res.data, data))
-        .then(() => server.close());
+        .then(() => close(server));
     });
   });
 
