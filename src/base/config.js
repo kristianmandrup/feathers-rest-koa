@@ -9,7 +9,7 @@ import {
   Logger
 } from '../base/logger'
 
-export class Config extends Logger {
+export class BaseConfig extends Logger {
   constructor(app, opts = {}) {
     super(opts)
     this.app = app

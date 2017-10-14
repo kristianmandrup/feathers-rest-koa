@@ -10,10 +10,11 @@ const koaify = require('../../src/koa/ify')
 const rest = require('../../src');
 const testCrud = require('../crud');
 // default express configuration functions
-const defaults = require('../../src/koa');
+const config = require('../../src/koa');
 
 function close(server) {
   // ??
+  console.log('closing server...??')
 }
 
 describe('REST provider', function () {
@@ -23,7 +24,7 @@ describe('REST provider', function () {
 
       try {
         app.configure(rest({
-          defaults
+          config
         }));
         assert.ok(false, 'Should never get here');
       } catch (e) {

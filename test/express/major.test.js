@@ -11,7 +11,7 @@ const rest = require('../../src');
 const testCrud = require('../crud');
 
 // default express configuration functions
-const defaults = require('../../src/express');
+const config = require('../../src/express');
 
 describe('REST provider', function () {
   describe('base functionality', () => {
@@ -20,7 +20,7 @@ describe('REST provider', function () {
 
       try {
         app.configure(rest({
-          defaults
+          config
         }));
         assert.ok(false, 'Should never get here');
       } catch (e) {
