@@ -11,7 +11,9 @@ const rest = require('../../src');
 const testCrud = require('../crud');
 
 // default express configuration functions
-const config = require('../../src/express');
+const {
+  config
+} = require('../../src/express');
 
 describe('REST provider', function () {
   describe('base functionality', () => {

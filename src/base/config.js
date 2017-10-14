@@ -29,9 +29,10 @@ export class BaseConfig extends Logger {
   }
 
   configure() {
-    return this
+    this
       .configJson()
       .configProvider()
       .configRest()
+    return this.app
   }
 }

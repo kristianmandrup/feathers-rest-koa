@@ -9,6 +9,9 @@ const {
 const expressify = require('feathers-express')
 const rest = require('../../src');
 const testCrud = require('../crud');
+const {
+  formatter
+} = require('../../src/express');
 
 // default express configuration functions
 const config = require('../../src/express');
@@ -19,7 +22,7 @@ describe('REST provider', function () {
 
     before(function () {
       app = expressify(feathers())
-        .configure(rest(rest.formatter))
+        .configure(rest(formatter))
         .use('todo', {
           get(id) {
             return Promise.resolve({

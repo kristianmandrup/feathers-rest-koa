@@ -8,10 +8,15 @@ const {
 
 const expressify = require('feathers-express')
 const rest = require('../../src');
+const {
+  formatter
+} = require('../../src/express');
 const testCrud = require('../crud');
 
 // default express configuration functions
-const config = require('../../src/express');
+const {
+  config
+} = require('../../src/express');
 
 describe('REST provider', function () {
   describe('CRUD', () => {
@@ -19,7 +24,7 @@ describe('REST provider', function () {
 
     before(function () {
       app = expressify(feathers())
-        .configure(rest(rest.formatter))
+        .configure(rest(formatter))
         .use(bodyParser.json())
         .use('codes', {
           get(id, params) {

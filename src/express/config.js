@@ -35,6 +35,7 @@ export class Config extends BaseConfig {
       app
     } = this
     this.log('no JSON config defined for Express app')
+    return this
   }
 
   configProvider() {
@@ -52,6 +53,7 @@ export class Config extends BaseConfig {
       };
       next();
     });
+    return this
   }
 
   configRest() {
@@ -67,6 +69,6 @@ export class Config extends BaseConfig {
       logging: opts.logging
     });
     routes.registerProvider();
-    return app
+    return this
   }
 }

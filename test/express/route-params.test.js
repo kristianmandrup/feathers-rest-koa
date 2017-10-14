@@ -9,6 +9,9 @@ const {
 const expressify = require('feathers-express')
 const rest = require('../../src');
 const testCrud = require('../crud');
+const {
+  formatter
+} = require('../../src/express');
 
 // default express configuration functions
 const config = require('../../src/express');
