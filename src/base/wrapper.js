@@ -1,3 +1,32 @@
+const errors = require('feathers-errors');
+const debug = require('debug')('feathers:rest');
+const {
+  omit
+} = require('feathers-commons')._;
+
+const statusCodes = {
+  created: 201,
+  noContent: 204,
+  methodNotAllowed: 405
+};
+
+const methodMap = {
+  find: 'GET',
+  get: 'GET',
+  create: 'POST',
+  update: 'PUT',
+  patch: 'PATCH',
+  remove: 'DELETE'
+};
+
+const allowedMethods = function (service) {
+  return Object.keys(methodMap)
+    .filter(method => typeof service[method] === 'function')
+    .map(method => methodMap[method])
+    // Filter out duplicates
+    .filter((value, index, list) => list.indexOf(value) === index);
+};
+
 // TODO: add base wrapper code here that is not framework dependent
 
 export function wrapper(method, getArgs, service, {

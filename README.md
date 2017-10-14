@@ -11,6 +11,13 @@
 
 > The Feathers REST API provider
 
+## Status
+
+Under development!
+
+Using and based on `major` branches from [feathers] and [feathers-rest].
+Might need a [feathers-koa] similar to [feathers-express] which exports an `expressify` function to wrap a feathers app for that particular web application framework.
+
 ## About
 
 This provider exposes [Feathers](http://feathersjs.com) services through a RESTful API using [Koa](http://koajs.com) that can be used with Feathers 1.x and 2.x as well as client support for Fetch, jQuery, Request, Superagent, axios and angular2+'s HTTP Service.
@@ -23,11 +30,13 @@ The REST client has been extracted. In the future it will likely be in a separat
 
 ## Quick example
 
-You can pass a `formatter` and additional `options` to the `rest` function.
+You can optionally pass options to `rest` function to customize the internal behavior as needed (see *rest method* section below for details and example)
 
 ```js
-rest(formatter, opts)
+rest(opts)
 ```
+
+Basic config, using default `rest` setup.
 
 ```js
 import Koa from 'koa';
@@ -37,7 +46,7 @@ import rest from 'feathers-rest-koa';
 
 const koa = new Koa()
 const app = feathers(koa)
-  .configure(rest())
+  .configure(rest()) // <-- configure with Koa REST
   .use(bodyParser())
   .use(function(req, res, next) {
     req.feathers.data = 'Hello world';
@@ -56,35 +65,6 @@ app.use('/:app/todos', {
     });
   }
 });
-```
-
-## Client use
-
-On the client use `feathers-rest/client`
-
-```js
-import feathers from 'feathers/client';
-import rest from 'feathers-rest/client';
-
-import jQuery from 'jquery';
-import request from 'request';
-import superagent from 'superagent';
-import axios from 'axios';
-import {Http, Headers} from '@angular/http';
-
-
-const app = feathers()
-  .configure(rest('http://baseUrl').jquery(jQuery))
-  // or
-  .configure(rest('http://baseUrl').fetch(window.fetch.bind(window)))
-  // or
-  .configure(rest('http://baseUrl').request(request))
-  // or
-  .configure(rest('http://baseUrl').superagent(superagent))
-  // or
-    .configure(rest('http://baseUrl').axios(axios))
-  // or (using injected Http instance)
-    .configure(rest('http://baseUrl').angular(http, { Headers }))
 ```
 
 ## Testing
@@ -126,6 +106,8 @@ function getHandler(method, getArgs, service, opts = {}) {
     // ...
     setter.setHeader('Allow', allowedMethods(service).join(','));
 ```
+
+### rest method
 
 The main `rest` method has been made more generic and customisable.
 
@@ -171,13 +153,15 @@ let app = feathers()
 
 Start from the `test/koa` folder and make sure that the routes added by the `Routes` class work as required by feathers. Then move on from there ;)
 
-Try running the simple `get` test:
+Try running the simple `major` test:
 
-`$ mocha test/services/get.test.js`
+`$ mocha test/major.test.js`
 
-Currently the problem is that feathers doesn't seem to add the Koa REST routes via `.use`, as in `test/config.js`:
+We need to create a `koaify` method, similar to `expressify` from [feathers-express]()
 
 ```js
+  // FIX: need to wrap feathers app with koaify!!
+
   app = feathers()
     // Note: rest factory will configure json body parser
     .configure(rest(opts))

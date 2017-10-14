@@ -1,5 +1,9 @@
 // TODO: use koa-routes
 import Router from 'koa-router';
+import {
+  BaseRoutes
+} from '../base/routes'
+
 const RESTmethods = {
   get: 'find',
   post: 'create',
@@ -12,82 +16,34 @@ export function createRoutes(app, opts = {}) {
   return new Routes(app, opts);
 }
 
-export class Routes {
+export class Routes extends BaseRoutes {
   constructor(app, opts = {}) {
+    super(app, opts)
     this.router = Router();
-    this.app = app;
-    this.logging = opts.logging;
-
-    let {
-      before,
-      after,
-      service
-    } = opts;
-
-    this.before = before;
-    this.after = after;
-    this.service = service;
   }
 
-  log(...msgs) {
-    if (!this.logging) return;
-    console.log(...msgs);
+  get provider() {
+    return 'koa'
   }
 
-  set uri(_uri) {
-    this._uri = _uri;
-    this.configure(_uri);
+  configRouteMws(route, httpMethod, routeMws) {
+    this.error('configRouteMw: how to add route Mw for Koa!?')
   }
 
-  configure(uri) {
-    // this.baseRoute = app.route(uri);
-    // this.idRoute = app.route(`${uri}/:__feathersId`);
+  configBaseRoute() {
+    this.configRouteMethods(this.baseRoutePath, RESTmethods);
+    return this;
+  }
 
-    // TODO: use koa router, should be names only
-    this.baseRoute = uri;
-    this.idRoute = `${uri}/:__feathersId`;
+  configIdRoute() {
+    this.configRouteMethods(this.idRoutePath, RESTmethods);
+    return this;
   }
 
   configAll() {
+    super.configAll()
     this
-      .configRoutes()
-      .addRouter();
-  }
-
-  configRoutes() {
-    this
-      .configBaseRoute()
-      .configIdRoute()
-
-    return this
-  }
-
-  configRoute(route, httpMethod, serviceMethod) {
-    let {
-      app,
-      before,
-      after,
-      service,
-    } = this;
-
-    this.log('configRoute', {
-      before,
-      after
-    });
-    // TODO: fix for koa
-    let restMethod = app.rest[serviceMethod](service);
-    let routeFuns = before.concat(restMethod, after);
-    let routeFun = async function (next) {
-      let promises = routeFuns.map(async fun => await fun(next))
-      return await Promise.all(promises)
-    }
-
-    this.log('configRoute', {
-      restMethod,
-      // routeFun
-    });
-
-    this.addRoute(httpMethod, route, routeFun)
+      .addRouter()
   }
 
   addRoute(httpMethod, route, routeFun) {
@@ -98,24 +54,6 @@ export class Routes {
       // routeFun
     });
     this.router[httpMethod](route, routeFun);
-  }
-
-  configRouteMethods(route, methodMap = {}) {
-    let methods = Object.keys(methodMap);
-    methods.map((httpMethod) => {
-      let serviceMethod = methodMap[httpMethod];
-      this.configRoute(route, httpMethod, serviceMethod);
-    });
-  }
-
-  configBaseRoute() {
-    this.configRouteMethods(this.baseRoute, RESTmethods);
-    return this;
-  }
-
-  configIdRoute() {
-    this.configRouteMethods(this.idRoute, RESTmethods);
-    return this;
   }
 
   addRouter() {
