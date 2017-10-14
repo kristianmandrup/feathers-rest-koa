@@ -11,11 +11,6 @@ export class Route extends BaseRoute {
     super(opts)
   }
 
-  configure(uri) {
-    super.configure(uri)
-    this.addRoutes()
-  }
-
   addRouteMws(route, httpMethod, routeMws) {
     route[httpMethod].apply(route, routeMws);
   }

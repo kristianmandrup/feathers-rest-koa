@@ -76,16 +76,16 @@ export class BaseRoutes extends Logger {
   addRoutes() {
     this.log('configRoutes')
     this
-      .addRoute('base')
-      .addRoute('id')
+      .addRestRoutes('base')
+      .addRestRoutes('id')
 
     return this
   }
 
-  addRoute(id) {
+  addRestRoutes(id) {
     this.log('configBaseRoute')
     let path = this.routeMap[id]
-    let route = this.createRoute(path)
+    let route = this.createRestRoute(path)
     this.routes.push()
     return this;
   }

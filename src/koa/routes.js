@@ -22,7 +22,11 @@ export function createRoutes(app, opts = {}) {
 export class Routes extends BaseRoutes {
   constructor(app, opts = {}) {
     super(app, opts)
-    this.router = Router();
+    this.router = this.createRouter()
+  }
+
+  createRouter() {
+    return new Router()
   }
 
   get provider() {
@@ -30,8 +34,17 @@ export class Routes extends BaseRoutes {
   }
 
   createRoute(path) {
+    this.notImplemented(createRoute)
+  }
+
+  createRestRoute(path) {
     // imported from route.js
     createRoute(this.app, path, this.config, this.opts)
+  }
+
+  configure(uri) {
+    super.configure(uri)
+    this.addRoutes()
   }
 
   addRouteMws(route, httpMethod, routeMws) {
