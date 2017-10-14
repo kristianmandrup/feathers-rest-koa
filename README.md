@@ -15,13 +15,11 @@
 
 *Under development!*
 
-Bassed on the `major` branch (v3) of [feathers](https://github.com/feathersjs/feathers) and [feathers-rest](https://github.com/feathersjs/feathers-rest).
+Bassed on the `major` branch (v3) of [feathers-rest](https://github.com/feathersjs/feathers-rest).
 
-We might need a [feathers-koa](https://github.com/kristianmandrup/feathers-koa) package, similar to [feathers-express](https://github.com/feathersjs/feathers-express).
+To be used with [feathers](https://github.com/feathersjs/feathers) major or ore branch.
 
-`feathers-express` exports a function (by convention known as `expressify`) to wrap a feathers app for that particular web application framework.
-
-Please help work on [feathers-koa](https://github.com/kristianmandrup/feathers-koa) to make it a reality! Initial work has started...
+Use the [feathers-koa](https://github.com/hmudesign/feathers-koa) package, similar to [feathers-express](https://github.com/feathersjs/feathers-express) to "koaify" or "expressify" a feathers app.
 
 ## About
 
@@ -190,9 +188,7 @@ Better to split it up in smaller parts, as has been done for `express`
 
 We (likely?) need to create a `koaify` method, similar to `expressify` from [feathers-express](https://github.com/feathersjs/feathers-express).
 
-See [feathers-koa](https://github.com/kristianmandrup/feathers-koa).
-
-Also see the [hmudesign/feathers-koa](https://github.com/hmudesign/feathers-koa) which may be a much better starting point!
+See the [feathers-koa](https://github.com/hmudesign/feathers-koa) which may be a much better starting point!
 
 ```js
   // FIX: need to wrap feathers app with koaify!!
