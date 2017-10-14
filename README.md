@@ -219,11 +219,20 @@ Main issue is how to add multiple middleware functions to Koa for a given route 
 
 ## Architecture
 
+- `Config` configures a feathers app with REST capability for a given web server
 - `Routes` add all feathers REST routes
 - `Route` create/add single route
+
+### Base classes
+
+Found in `src/base`:
+
+- `Config`
+- `Routes`
+- `Route`
 - `Logger` logging/debugging and error handling
 
-### Feathers REST configuration
+### Config
 
 - `configJson` configure feathers with JSON body parsing
 - `configProvider` set feathers REST provider (meta data)
@@ -233,9 +242,13 @@ Main issue is how to add multiple middleware functions to Koa for a given route 
 
 The `Routes` class can be extended for your own framework wrapper. It should include methods to add `base` and `id` routes to the feathers app and/or a router of your choice.
 
+TODO: API doc
+
 ### Route
 
 The `Route` class can be extended for your own framework wrapper. It should include methods to create and add a single route to the feathers app and/or a router of your choice.
+
+TODO: API doc
 
 ### Wrapper
 
