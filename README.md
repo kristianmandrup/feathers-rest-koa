@@ -156,17 +156,22 @@ let app = feathers()
 
 ## Development
 
-Start from the `test/koa` folder and make sure that the routes added by the `Routes` class work as required by feathers. Then move on from there ;)
+Start from the `test/express` folder and make sure that the routes added by the `Routes` class work as required by feathers. Then move on to `test/koa` ;)
 
-Try running the simple `major` test:
+Try running the simple `major` test on express:
 
-`$ mocha test/major.test.js`
+`$ mocha test/express/major.test.js`
 
-We need to create a `koaify` method, similar to `expressify` from [feathers-express]()
+Same test suite for koa:
+
+`$ mocha test/koa/major.test.js`
+
+We likely need to create a `koaify` method, similar to `expressify` from [feathers-express](https://github.com/feathersjs/feathers-express).
+
+See [feathers-koa](https://github.com/kristianmandrup/feathers-koa).
 
 ```js
   // FIX: need to wrap feathers app with koaify!!
-
   app = feathers()
     // Note: rest factory will configure json body parser
     .configure(rest(opts))
@@ -185,9 +190,19 @@ We need to create a `koaify` method, similar to `expressify` from [feathers-expr
     .use('todo', todoService);
 ```
 
-We likely need to integrate the work done in [feathers#major](https://github.com/feathersjs/feathers-rest/tree/major) (v3) branch.
+Been trying to integrate the work done in [feathers#major](https://github.com/feathersjs/feathers-rest/tree/major) (v3) branch.
 
 Please follow along in this [issue #133](https://github.com/feathersjs/feathers-rest/issues/133#issuecomment-336619412)
+
+Main issue is how to add the mws to Koa for a given route. Perhaps should be done more centrally? Please advice
+
+```js
+  // route here is the name for now (in Koa Routes class)
+  // route is a real route object for express
+  configRouteMws(route, httpMethod, routeMws) {
+    this.error('configRouteMw: how to add route Mw for Koa!?')
+  }
+```
 
 ## License
 
