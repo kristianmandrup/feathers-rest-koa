@@ -15,8 +15,13 @@
 
 Under development!
 
-Using and based on `major` branches from [feathers] and [feathers-rest].
-Might need a [feathers-koa] similar to [feathers-express] which exports an `expressify` function to wrap a feathers app for that particular web application framework.
+Using and based on `major` branches from [feathers](https://github.com/feathersjs/feathers) and [feathers-rest](https://github.com/feathersjs/feathers-rest).
+
+We might need a [feathers-koa](https://github.com/kristianmandrup/feathers-koa) package, similar to [feathers-express](https://github.com/feathersjs/feathers-express).
+
+`feathers-express` exports a function (by convention known as `expressify`) to wrap a feathers app for that particular web application framework.
+
+Please help work on [feathers-koa](https://github.com/kristianmandrup/feathers-koa) to make it a reality!
 
 ## About
 
