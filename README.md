@@ -114,9 +114,83 @@ To run a single test spec, use the `.only` (see [run-single-mocha-test](https://
 
 Enjoy!
 
+## Changes for more generic REST configuration
+
+The `wrappers.js` file now uses a `createSetter` to create an object with operators to set the header and status code of the context or response object passed in each middleware function (depending on framework used).
+
+```js
+function getHandler(method, getArgs, service, opts = {}) {
+  return async function (ctx, next) {
+    let createSetter = opts.createSetter || koaCreateSetter
+    let setter = createSetter(ctx)
+    // ...
+    setter.setHeader('Allow', allowedMethods(service).join(','));
+```
+
+The main `rest` method has been made more generic and customisable.
+
+```js
+export default function rest(opts = {}) {
+  return function () {
+    const app = this;
+    let configJson = opts.configJson || koaConfigJson
+    configJson(app, opts)
+
+    let configFeathersRest = opts.configJson || koaConfigFeathersRest
+    configFeathersRest(app, opts)
+
+    app.rest = wrappers;
+    let register = opts.register || defaultRegister;
+    register(app, opts);
+  };
+}
+```
+
+You can now pass in custom config/register functions via the `opts` parameter.
+Note: Each of the optional functions have the signature `(app, opts)`
+
+```js
+let opts = {
+  configJson,
+  configFeathersRest,
+  register: (app, opts) => {
+    // ...
+  }
+}
+let app = feathers()
+  .configure(rest(opts))
+```
+
 ## Development
 
-Please start from the `test/koa` folder and make sure that the routes added by the `Routes` class function as expected/required by feathers. Then move on from there ;)
+Start from the `test/koa` folder and make sure that the routes added by the `Routes` class work as required by feathers. Then move on from there ;)
+
+Try running the simple `get` test:
+
+`$ mocha test/services/get.test.js`
+
+Currently the problem is that feathers doesn't seem to add the Koa REST routes via `.use`, as in `test/config.js`:
+
+```js
+  app = feathers()
+    // Note: rest factory will configure json body parser
+    .configure(rest(opts))
+    // .use(bodyParser()) // supports json (now done via configure(rest()))
+
+    // FIX: calling .use does not add the routes via koa-router!!
+    .use('codes', {
+      get(id, params, callback) {
+        callback();
+      },
+
+      create(data, params, callback) {
+        callback(null, data);
+      }
+    })
+    .use('todo', todoService);
+```
+
+We likely need to integrate the work done in [feathers#major](https://github.com/feathersjs/feathers-rest/tree/major) (v3) branch.
 
 ## License
 

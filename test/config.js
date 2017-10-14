@@ -32,12 +32,19 @@ export {
   todoService,
   verify
 };
+const log = console.log
 
-let serve, app;
+let serve, app, port;
 
-export function configure() {
-  app = feathers().configure(rest())
-    // .use(bodyParser()) // supports json
+export function configure(opts = {}) {
+  port = opts.port || 4777
+
+  app = feathers()
+    // Note: rest factory will configure json body parser
+    .configure(rest(opts))
+    // .use(bodyParser()) // supports json (now done via configure(rest()))
+
+    // FIX: calling .use does not add the routes via koa-router!!
     .use('codes', {
       get(id, params, callback) {
         callback();
@@ -50,7 +57,11 @@ export function configure() {
     .use('todo', todoService);
 
   function serve() {
-    app.listen(4777, () => app.use('tasks', todoService));
+    log('serving app')
+    app.listen(port, () => {
+      log('listening on port', port)
+      app.use('tasks', todoService)
+    });
   }
 
   let req = request.agent(serve())

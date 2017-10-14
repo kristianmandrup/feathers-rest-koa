@@ -7,7 +7,7 @@ import jsonBody from 'koa-json-body';
 
 const debug = makeDebug('feathers-rest-koa');
 
-export function createRegistrator(app) {
+export function createRegistrator(app, opts = {}) {
   return function (path, service, options) {
     const uri = path.indexOf('/') === 0 ? path : `/${path}`;
 
@@ -19,7 +19,8 @@ export function createRegistrator(app) {
     const routes = createRoutes(app, {
       before,
       after,
-      service
+      service,
+      logging: opts.logging
     });
     routes.uri = uri;
     routes.configAll();
@@ -32,39 +33,47 @@ export class Registrator {
     this.app = app;
   }
 
-  register() {
+  register(opts = {}) {
     let {
       app
     } = this;
-    let registrator = createRegistrator(app);
+    let registrator = createRegistrator(app, opts);
     // Register the REST provider
     app.providers.push(registrator);
     return app;
   }
 }
 
-export function defaultRegister(app) {
-  new Registrator(app).register();
+export function defaultRegister(app, opts = {}) {
+  new Registrator(app).register(opts);
+}
+
+export function koaConfigJson(app, opts) {
+  let jsonOpts = Object.assign({
+    limit: '10kb',
+    fallback: true
+  }, opts);
+  let jsonHandler = opts.handler || jsonBody(jsonOpts);
+  app.use(jsonHandler);
+}
+
+export function koaConfigFeathersRest(app, opts) {
+  app.use(async function (ctx, next) {
+    ctx.feathers = {
+      provider: 'rest'
+    };
+    await next();
+  });
 }
 
 export default function rest(opts = {}) {
   return function () {
     const app = this;
+    let configJson = opts.configJson || koaConfigJson
+    configJson(app, opts)
 
-    let jsonOpts = Object.assign({
-      limit: '10kb',
-      fallback: true
-    }, opts);
-    let jsonHandler = opts.handler || jsonBody(jsonOpts);
-
-    app.use(jsonHandler);
-
-    app.use(async function (ctx, next) {
-      ctx.feathers = {
-        provider: 'rest'
-      };
-      await next();
-    });
+    let configFeathersRest = opts.configJson || koaConfigFeathersRest
+    configFeathersRest(app, opts)
 
     app.rest = wrappers;
     let register = opts.register || defaultRegister;

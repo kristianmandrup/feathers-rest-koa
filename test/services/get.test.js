@@ -9,11 +9,15 @@ import {
   verify
 } from '../config';
 
+const log = console.log
+
 let req
 describe('REST provider', function () {
   describe('CRUD: get', function () {
     before(done => {
-      let config = configure.bind(this)()
+      let config = configure.bind(this)({
+        logging: true
+      })
       req = config.req
     })
 
@@ -22,22 +26,26 @@ describe('REST provider', function () {
         req
           .get('/todo')
           .expect(200)
-          .end((error, response, body) => {
-            if (error) assert.fail(error.message);
-            verify.find(JSON.parse(body));
+          .end((error, response) => {
+            // if (error) assert.fail(error.message);
+            log({
+              body: response.body
+            })
+
+            verify.find(JSON.parse(response.body));
             done(error);
           });
       });
 
-      // it('GET .get', done => {
-      //   req
-      //     .get('/todo/dishes')
-      //     .expect(200)
-      //     .end((error, response, body) => {
-      //       verify.get('dishes', JSON.parse(body));
-      //       done(error);
-      //     });
-      // });
+      it('GET .get', done => {
+        req
+          .get('/todo/dishes')
+          .expect(200)
+          .end((error, response, body) => {
+            verify.get('dishes', JSON.parse(body));
+            done(error);
+          });
+      });
     });
   });
 });

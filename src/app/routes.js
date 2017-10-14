@@ -31,7 +31,6 @@ export class Routes {
 
   log(...msgs) {
     if (!this.logging) return;
-    throw Error('logging')
     console.log(...msgs);
   }
 
@@ -85,7 +84,7 @@ export class Routes {
 
     this.log('configRoute', {
       restMethod,
-      routeFun
+      // routeFun
     });
 
     this.addRoute(httpMethod, route, routeFun)
@@ -96,10 +95,8 @@ export class Routes {
       router: this.router,
       httpMethod,
       route,
-      routeFun
+      // routeFun
     });
-    console.error(httpMethod, route, routeFun)
-
     this.router[httpMethod](route, routeFun);
   }
 
