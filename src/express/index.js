@@ -17,15 +17,11 @@ export function formatter(req, res, next) {
   });
 }
 
-export function defaultRegisterRest(app, opts = {}) {
-  registerRest(app, opts);
-}
-
-export function defaultConfigJson(app, opts) {
+export function configJson(app, opts) {
   console.log('no JSON config defined for Express app')
 }
 
-export function defaultConfigFeathersRest(app, opts) {
+export function configProvider(app, opts) {
   if (!app.version || app.version < '3.0.0') {
     throw new Error(`feathers-rest requires an instance of a Feathers application version 3.x or later (got ${app.version})`);
   }
@@ -38,7 +34,7 @@ export function defaultConfigFeathersRest(app, opts) {
   });
 }
 
-export function registerRest(app, opts = {}) {
+export function configRest(app, opts = {}) {
   if (typeof app.route !== 'function') {
     throw new Error('feathers-rest needs an Express compatible app. Feathers apps have to wrapped with feathers-express first.');
   }
@@ -48,4 +44,10 @@ export function registerRest(app, opts = {}) {
   });
   routes.registerProvider();
   return app
+}
+
+export const defaults = {
+  configJson,
+  configProvider,
+  configRest
 }

@@ -3,6 +3,9 @@ import Router from 'koa-router';
 import {
   BaseRoutes
 } from '../base/routes'
+import {
+  createRoute
+} from './route'
 
 const RESTmethods = {
   get: 'find',
@@ -26,24 +29,13 @@ export class Routes extends BaseRoutes {
     return 'koa'
   }
 
-  configRouteMws(route, httpMethod, routeMws) {
+  createRoute(path) {
+    // imported from route.js
+    createRoute(this.app, path, this.config, this.opts)
+  }
+
+  addRouteMws(route, httpMethod, routeMws) {
     this.error('configRouteMw: how to add route Mw for Koa!?')
-  }
-
-  configBaseRoute() {
-    this.configRouteMethods(this.baseRoutePath, RESTmethods);
-    return this;
-  }
-
-  configIdRoute() {
-    this.configRouteMethods(this.idRoutePath, RESTmethods);
-    return this;
-  }
-
-  configAll() {
-    super.configAll()
-    this
-      .addRouter()
   }
 
   addRoute(httpMethod, route, routeFun) {
@@ -53,14 +45,19 @@ export class Routes extends BaseRoutes {
       route,
       // routeFun
     });
-    this.router[httpMethod](route, routeFun);
+
+    // create route via router
+    // is this correct or just guessing? we need to get handle to route object created
+    this.route = this.router[httpMethod](route, routeFun);
+    return this
   }
 
-  addRouter() {
+  addRouterToApp() {
     let {
       app,
       router
     } = this;
+
     app
       .use(router.routes())
       .use(router.allowedMethods());

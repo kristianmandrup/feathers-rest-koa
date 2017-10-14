@@ -1,16 +1,11 @@
-import makeDebug from 'debug';
-const debug = makeDebug('feathers-rest-koa');
-
 import jsonBody from 'koa-json-body';
 import {
   createRoutes
 } from './routes';
+import makeDebug from 'debug';
+const debug = makeDebug('feathers-rest-koa');
 
-export function defaultRegisterRest(app, opts = {}) {
-  registerRest(app, opts);
-}
-
-export function defaultConfigJson(app, opts) {
+export function configJson(app, opts) {
   let jsonOpts = Object.assign({
     limit: '10kb',
     fallback: true
@@ -19,7 +14,7 @@ export function defaultConfigJson(app, opts) {
   app.use(jsonHandler);
 }
 
-export function defaultConfigFeathersRest(app, opts) {
+export function configProvider(app, opts) {
   if (!app.version || app.version < '3.0.0') {
     throw new Error(`feathers-rest requires an instance of a Feathers application version 3.x or later (got ${app.version})`);
   }
@@ -32,10 +27,15 @@ export function defaultConfigFeathersRest(app, opts) {
   });
 }
 
-export function registerRest(app, opts = {}) {
+export function configRest(app, opts = {}) {
   const routes = createRoutes(app, {
     logging: opts.logging
-  });
-  routes.registerProvider();
+  }).registerProvider();
   return app
+}
+
+export const defaults = {
+  configJson,
+  configProvider,
+  configRest
 }

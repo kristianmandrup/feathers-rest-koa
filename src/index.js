@@ -1,22 +1,18 @@
 import wrappers from './wrappers';
 
-import {
-  defaultConfigJson,
-  defaultConfigFeathersRest,
-  defaultRegisterRest
-} from './koa'
-
 export default function rest(opts = {}) {
   return function () {
+    const defaults = opts.defaults || {}
     const app = this;
-    let configJson = opts.configJson || defaultConfigJson
+    app.rest = wrappers;
+
+    let configJson = opts.configJson || defaults.configJson
     configJson(app, opts)
 
-    let configFeathersRest = opts.configJson || defaultConfigFeathersRest
+    let configFeathersRest = opts.configJson || defaults.configFeathersRest
     configFeathersRest(app, opts)
 
-    app.rest = wrappers;
-    let registerRest = opts.registerRest || defaultRegisterRest;
+    let registerRest = opts.registerRest || defaults.RegisterRest;
     registerRest(app, opts);
   };
 }

@@ -1,38 +1,18 @@
 import makeDebug from 'debug';
 const debug = makeDebug('feathers:rest');
+import {
+  Logger
+} from './logger'
 
-const RESTmethods = {
-  get: 'find',
-  post: 'create',
-  patch: 'patch',
-  put: 'update',
-  delete: 'remove'
-};
-
-export class BaseRoutes {
+export class BaseRoutes extends Logger {
   constructor(app, opts = {}) {
-    this.logging = opts.logging;
-    this.log('constructor', {
-      app,
-      opts
-    })
+    super(opts)
     this.app = app;
     this.providers = app.providers || []
-
   }
 
   get label() {
-    return `Routes #{this.provider}:`
-  }
-
-  log(...msgs) {
-    if (!this.logging) return;
-    console.log(this.label, ...msgs);
-  }
-
-  error(msg, obj) {
-    console.error(`${this.label} #{msg}`, obj)
-    throw new Error(`${this.label} #{msg}`)
+    this.notImplemented('label getter')
   }
 
   get provider() {
@@ -45,8 +25,10 @@ export class BaseRoutes {
   }
 
   configure(uri) {
-    this.baseRoutePath = uri;
-    this.idRoutePath = `${uri}/:__feathersId`;
+    this.routeMap = {
+      base: uri,
+      id: `${uri}/:__feathersId`
+    }
   }
 
   registerProvider() {
@@ -73,10 +55,12 @@ export class BaseRoutes {
       after = after.concat(handler);
     }
 
-    this.service = service
-    this.middleware = middleware
-    this.after = after
-    this.before = before
+    this.config = {
+      service,
+      middleware,
+      after,
+      before
+    }
 
     debug(`Adding REST provider for service \`${path}\` at base route \`${uri}\``);
 
@@ -86,71 +70,28 @@ export class BaseRoutes {
   configAll() {
     this.log('configAll')
     this
-      .configRoutes()
+      .addRoutes()
   }
 
-  configRoutes() {
+  addRoutes() {
     this.log('configRoutes')
     this
-      .configBaseRoute()
-      .configIdRoute()
+      .addRoute('base')
+      .addRoute('id')
 
     return this
   }
 
-  configRoute(route, httpMethod, serviceMethod) {
-    let {
-      app,
-      before,
-      after,
-      service,
-    } = this;
-
-    this.log('configRoute', {
-      httpMethod,
-      serviceMethod,
-      before,
-      after
-    });
-
-    // baseRoute.get(...before, app.rest.find(service), ...after);
-    // baseRoute.get(...before, restMethod, ...after);
-    let restFactory = app.rest[serviceMethod]
-
-    if (!restFactory) {
-      this.error('configRoute: bad or missing rest factory', {
-        serviceMethod,
-        rest: app.rest
-      })
-    }
-
-    let restMethod = restFactory(service);
-    let routeMws = [...before, restMethod, ...after]
-    this.log('configRoute', {
-      restMethod,
-      routeMws
-    });
-
-    this.configRouteMws(route, httpMethod, routeMws)
-    this.addRoute(httpMethod, route, routeFun)
-  }
-
-  configRouteMws(route, httpMethod, routeMws) {
-    console.error('configRouteMws: subclass must define how to add the routeMws middlewares')
-  }
-
-  configRouteMethods(route, methodMap = {}) {
-    let methods = Object.keys(methodMap);
-    methods.map((httpMethod) => {
-      let serviceMethod = methodMap[httpMethod];
-      this.configRoute(route, httpMethod, serviceMethod);
-    });
-  }
-
-  configBaseRoute() {
+  addRoute(id) {
     this.log('configBaseRoute')
-    this.configRouteMethods(this.baseRoute, RESTmethods);
+    let path = this.routeMap[id]
+    let route = this.createRoute(path)
+    this.routes.push()
     return this;
+  }
+
+  createRoute(path) {
+    this.notImplemented('createRoute')
   }
 
   configIdRoute() {
@@ -159,16 +100,7 @@ export class BaseRoutes {
     return this;
   }
 
-  addRoute(httpMethod, route, routeFun) {
-    this.log('adding route', {
-      router: this.router,
-      httpMethod,
-      route,
-      // routeFun
-    });
-  }
-
-  addRouter() {
-    throw new Error('Routes subclass missing addRouter() function')
+  addRouterToApp() {
+    this.notImplemented('addRouterToApp')
   }
 }

@@ -6,7 +6,7 @@ const {
   Service
 } = require('feathers-commons/lib/test-fixture');
 
-const koaify = require('../src/koaify')
+const koaify = require('../src/koa/ify')
 const rest = require('../src');
 const testCrud = require('./crud');
 
