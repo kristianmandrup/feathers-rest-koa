@@ -27,8 +27,12 @@ export class KoaRoute extends BaseRoute {
 
     let restVerb = router[methods.http]
     // As per: https://github.com/alexmingoia/koa-router#multiple-middleware
-    restVerb.call(restVerbMethod, route, ...routeMws);
-    this.log('added route with middleware', route)
+    restVerb.call(restVerb, route, ...routeMws);
+    this.log('added route with middleware', {
+      restVerb,
+      route,
+      restVerb
+    })
     return this
   }
 }

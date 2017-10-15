@@ -41,7 +41,7 @@ export class BaseRoute extends Logger {
 
     if (!restFactory) {
       this.error('configure: bad or missing rest factory on feathers app', {
-        serviceAction: serviceAction,
+        serviceAction,
         rest
       })
     }
