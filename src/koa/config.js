@@ -19,6 +19,10 @@ export class Config extends BaseConfig {
     super(app, opts)
   }
 
+  get label() {
+    return 'Config'
+  }
+
   configJson() {
     let {
       app,
@@ -29,6 +33,10 @@ export class Config extends BaseConfig {
       fallback: true
     }, opts);
     let jsonHandler = opts.handler || jsonBody(jsonOpts);
+    this.log('configJson add jsonHandler to app', {
+      app,
+      jsonHandler
+    })
     app.use(jsonHandler);
     return this
   }
@@ -58,7 +66,8 @@ export class Config extends BaseConfig {
     } = this
     const routes = createRoutes(app, {
       logging: opts.logging
-    }).registerProvider();
+    })
+    routes.registerProvider();
     return this
   }
 }

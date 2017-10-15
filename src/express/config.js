@@ -28,6 +28,11 @@ export function config(app, opts) {
 export class Config extends BaseConfig {
   constructor(app, opts = {}) {
     super(app, opts)
+    console.log('Config', opts)
+  }
+
+  get label() {
+    return 'Config'
   }
 
   configJson() {

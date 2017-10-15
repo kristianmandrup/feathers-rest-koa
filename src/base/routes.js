@@ -9,6 +9,17 @@ export class BaseRoutes extends Logger {
     super(opts)
     this.app = app;
     this.providers = app.providers || []
+    this.router = opts.router || this.createRouter()
+    this.routes = {}
+  }
+
+  get label() {
+    return 'Routes'
+  }
+
+  createRouter() {
+    this.warn('createRouter not implemented')
+    // this.notImplemented('createRouter')
   }
 
   get label() {
@@ -43,6 +54,7 @@ export class BaseRoutes extends Logger {
   // Register the REST provider
   registerRest(service, path, options) {
     const uri = `/${path}`;
+    this.uri = uri
 
     let {
       middleware = {}
@@ -74,7 +86,7 @@ export class BaseRoutes extends Logger {
   }
 
   addRoutes() {
-    this.log('configRoutes')
+    this.log('addRoutes: base, id')
     this
       .addRestRoutes('base')
       .addRestRoutes('id')
@@ -83,21 +95,20 @@ export class BaseRoutes extends Logger {
   }
 
   addRestRoutes(id) {
-    this.log('configBaseRoute')
+    this.log('addRestRoutes:', id)
     let path = this.routeMap[id]
+    if (typeof this.createRestRoute !== 'function') {
+      this.error('missing function createRestRoute')
+    }
+
     let route = this.createRestRoute(path)
-    this.routes.push()
+    this.routes.id = route
+    this.log('created rest routes:', id)
     return this;
   }
 
   createRoute(path) {
     this.notImplemented('createRoute')
-  }
-
-  configIdRoute() {
-    this.log('configIdRoute')
-    this.configRouteMethods(this.idRoute, RESTmethods);
-    return this;
   }
 
   addRouterToApp() {

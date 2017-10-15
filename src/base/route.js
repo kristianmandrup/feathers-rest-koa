@@ -19,7 +19,12 @@ export class BaseRoute extends Logger {
     this.router = opts.router
   }
 
-  configure(route, httpMethod, serviceMethod) {
+  get label() {
+    return 'Route'
+  }
+
+  // { methods: httpMethod, service: serviceMethod}
+  configure(route, methods) {
     let {
       app,
       before,
@@ -27,33 +32,32 @@ export class BaseRoute extends Logger {
       service,
     } = this.config;
 
-    this.log('configRoute', {
-      httpMethod,
-      serviceMethod,
+    this.log('configure', {
+      methods,
       before,
       after
     });
 
     // baseRoute.get(...before, app.rest.find(service), ...after);
     // baseRoute.get(...before, restMethod, ...after);
-    let restFactory = app.rest[serviceMethod]
+    let restFactory = app.rest[methods.service]
 
     if (!restFactory) {
-      this.error('configRoute: bad or missing rest factory on feathers app', {
-        serviceMethod,
+      this.error('configure: bad or missing rest factory on feathers app', {
+        service: methods.service,
         rest: app.rest
       })
     }
 
     let restMethod = restFactory(service);
-    let routeMws = [...before, restMethod, ...after]
-    this.log('configRoute', {
-      restMethod,
+    let routeMws = [...before, methods.rest, ...after]
+    this.log('configure', {
+      methods,
       routeMws
     });
 
-    this.addMws(route, httpMethod, routeMws)
-    this.addToRouter(httpMethod, route, routeFun)
+    this.addMws(route, routeMws, methods)
+    this.postConfig(route, methods)
   }
 
   addRouteMethods(route, methodMap = {}) {
@@ -64,11 +68,8 @@ export class BaseRoute extends Logger {
     });
   }
 
-  addMws(route, httpMethod, routeMws) {
-    this.notImplemented('addMws')
-  }
-
-  addToRouter(httpMethod, route, routeFun) {
-    this.notImplemented('addToRouter')
+  postConfig(route, methods) {
+    this.log('postConfig not implemented')
+    // this.notImplemented('postConfig')
   }
 }

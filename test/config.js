@@ -36,14 +36,34 @@ const log = console.log
 
 let serve, app, port;
 
+const koaify = require('../src/koa/ify')
+
+function wrap(app) {
+  console.log('koaify app.use', {
+    use: app.use
+  })
+  let wrapped = koaify(app)
+  console.log('koaified app.use', {
+    use: app.use
+  })
+  return wrapped
+}
+
 export function configure(opts = {}) {
+  console.log('configure', opts)
   port = opts.port || 4777
 
   app = feathers()
-    // Note: rest factory will configure json body parser
-    .configure(rest(opts))
-    // .use(bodyParser()) // supports json (now done via configure(rest()))
+  app = wrap(app)
 
+  // Note: rest factory will configure json body parser
+  app
+    .configure(rest(opts))
+
+
+
+  // .use(bodyParser()) // supports json (now done via configure(rest()))
+  app
     // FIX: calling .use does not add the routes via koa-router!!
     .use('codes', {
       get(id, params, callback) {

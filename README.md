@@ -21,6 +21,25 @@ To be used with [feathers](https://github.com/feathersjs/feathers) major or ore 
 
 Use the [feathers-koa](https://github.com/hmudesign/feathers-koa) package, similar to [feathers-express](https://github.com/feathersjs/feathers-express) to "koaify" or "expressify" a feathers app.
 
+### Current issues
+
+Currently the `test/services/` tests use `feathers-koa` to koaify the app so that the core feathers methods such as `use` work as koa `use`. This is quite "hacky".
+
+```js
+export class Config extends BaseConfig {
+  // ...
+  configJson() {
+    // ...
+    app.use(jsonHandler) // <-- works as koa .use
+  }
+  // ...
+}
+```
+
+We could perhaps enable feathers to wrap multiple servers, and expose each server such as `app.koa`, `app.express` etc. Perhaps even multiple servers on different port with different unique names, ie. `app.koa_admin` and `app.koa_guest` etc. or even: `app.koa.guest`
+
+Your thoughts?
+
 ## About
 
 This provider exposes [Feathers](http://feathersjs.com) services through a RESTful API using [Koa](http://koajs.com) that can be used with Feathers 1.x and 2.x as well as client support for Fetch, jQuery, Request, Superagent, axios and angular2+'s HTTP Service.
@@ -249,9 +268,30 @@ The `Routes` class can be extended for your own framework wrapper. It should inc
 
 TODO: API doc
 
+You can customize the router and route creating by passing the following function in options:
+
+- `createRouter()`
+- `createRestRoute(path)`
+
 ### Route
 
 The `Route` class can be extended for your own framework wrapper. It should include methods to create and add a single route to the feathers app and/or a router of your choice.
+
+Adding multiple middleware for a route:
+
+```js
+router.get(
+  '/users/:id',
+  function *(next) {
+    this.user = yield User.findOne(this.params.id);
+    yield next;
+  },
+  function *(next) {
+    console.log(this.user);
+    // => { id: 17, name: "Alex" }
+  }
+);
+```
 
 TODO: API doc
 

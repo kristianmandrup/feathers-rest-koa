@@ -15,12 +15,16 @@ export function createRoutes(app, opts = {}) {
 export class Routes extends BaseRoutes {
   constructor(app, opts = {}) {
     super(app, opts)
-    // this.router = this.createRouter()
+    this.router = opts.router || this.createRouter()
+  }
+
+  get label() {
+    return 'Routes'
   }
 
   // TODO: create Express router
   createRouter() {
-    this.notImplemented('createRouter')
+    // this.notImplemented('createRouter')
   }
 
   get provider() {

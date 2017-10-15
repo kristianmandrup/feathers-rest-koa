@@ -15,6 +15,7 @@ let req
 describe('REST provider', function () {
   describe('CRUD: get', function () {
     before(done => {
+      console.log('before: config request')
       let config = configure.bind(this)({
         logging: true
       })

@@ -1,5 +1,5 @@
 export class Logger {
-  constructor(app, opts = {}) {
+  constructor(opts = {}) {
     this.opts = opts
     this.logging = opts.logging;
     process.env.DEBUG = process.env.DEBUG || opts.debug
@@ -12,6 +12,10 @@ export class Logger {
   log(...msgs) {
     if (!this.logging) return;
     console.log(this.label, ...msgs);
+  }
+
+  warn(...msgs) {
+    this.log('WARNING', ...msgs)
   }
 
   notImplemented(method) {

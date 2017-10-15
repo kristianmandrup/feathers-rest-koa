@@ -16,6 +16,10 @@ export class BaseConfig extends Logger {
     this.opts = opts
   }
 
+  get label() {
+    return 'Config'
+  }
+
   configJson() {
     this.notImplemented('configJson')
   }

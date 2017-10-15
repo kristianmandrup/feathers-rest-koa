@@ -11,7 +11,12 @@ export class Route extends BaseRoute {
     super(opts)
   }
 
-  addRouteMws(route, httpMethod, routeMws) {
-    route[httpMethod].apply(route, routeMws);
+  addRouteMws(route, routeMws, methods) {
+    let verb = route[methods.http]
+    verb.apply(verb, routeMws);
+  }
+
+  postConfig(route, methods) {
+    this.log('postConfig: not implemented yet')
   }
 }
