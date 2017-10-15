@@ -18,7 +18,11 @@ export class KoaRest extends BaseRest {
     return 'KoaRest'
   }
 
-  createRoute(rest, route, methods, opts) {
-    return createRoute(this, route, methods, this.opts)
+  createRoute(route, methods) {
+    console.log('createRoute', {
+      route,
+      methods
+    })
+    return createRoute(this, route, methods, this.opts).configure()
   }
 }

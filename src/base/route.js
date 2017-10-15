@@ -17,19 +17,27 @@ export class BaseRoute extends Logger {
   // add/configure route
   configure() {
     let {
-      app,
+      config,
+      app
+    } = this.rest
+    let {
       before,
       after,
       service,
-    } = this.rest.config;
+    } = config;
 
     this.log('configure', {
-      methods,
       before,
       after
     });
 
-    let rest = app.rest
+    let {
+      methods,
+    } = this
+    let {
+      rest
+    } = app
+
     let {
       serviceAction,
       reqMethod

@@ -35,6 +35,6 @@ export class ExpressRoutes extends BaseRoutes {
       path,
       // ctx: this
     })
-    return createRest(this.app, path, this.config, this.opts)
+    return createRest(this.app, path, this.config, this.opts).configure()
   }
 }

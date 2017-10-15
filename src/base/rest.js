@@ -24,11 +24,10 @@ export class BaseRest extends Logger {
     this.route = path
     this.config = config
     this.router = config.router
+    this.reqServiceMap = reqServiceMap
 
     this.createRoute = opts.createRoute || this.createRoute
     this.createRoute.bind(this)
-
-    this.configure()
   }
 
   get label() {
@@ -37,17 +36,23 @@ export class BaseRest extends Logger {
 
   // override to create route from path or whatever
   configure() {
+    this.log('configure')
     this.addRouteMethods()
+    return this
   }
 
   addRouteMethods() {
-    let reqMethods = Object.keys(reqServiceMap);
+    this.log('addRouteMethods')
+    let reqMethods = Object.keys(this.reqServiceMap);
     reqMethods.map(reqMethod => this.addRouteMethod(reqMethod));
     return this
   }
 
   addRouteMethod(reqMethod) {
-    let serviceAction = reqServiceMap[reqMethod];
+    this.log('addRouteMethod', {
+      reqMethod
+    })
+    let serviceAction = this.reqServiceMap[reqMethod];
     this.addRoute({
       reqMethod,
       serviceAction
@@ -62,6 +67,10 @@ export class BaseRest extends Logger {
     let {
       route
     } = this
+    this.log('addRoute', {
+      route,
+      methods
+    })
     this.createRoute(route, methods)
   }
 }

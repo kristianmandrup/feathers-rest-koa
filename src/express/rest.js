@@ -12,8 +12,6 @@ export function createRest(app, path, config, opts) {
 export class ExpressRest extends BaseRest {
   constructor(app, path, config, opts = {}) {
     super(opts)
-    this.createRoute = opts.createRoute || createRoute || this.createRoute
-    this.createRoute.bind(this)
   }
 
   get label() {
@@ -21,6 +19,10 @@ export class ExpressRest extends BaseRest {
   }
 
   createRoute(route, methods) {
-    return createRoute(this, route, methods, this.opts)
+    console.log('createRoute', {
+      route,
+      methods
+    })
+    return createRoute(this, route, methods, this.opts).configure()
   }
 }
