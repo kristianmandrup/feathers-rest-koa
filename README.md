@@ -23,6 +23,8 @@ Use the [feathers-koa](https://github.com/hmudesign/feathers-koa) package, simil
 
 ### Current issues
 
+
+
 Currently the `test/services/` tests use `feathers-koa` to koaify the app so that the core feathers methods such as `use` work as koa `use`. This is quite "hacky".
 
 ```js
@@ -244,8 +246,9 @@ Main issue is how to add multiple middleware functions to Koa for a given route 
 ## Architecture
 
 - `Config` configures a feathers app with REST capability for a given web server
-- `Routes` add all feathers REST routes
-- `Route` create/add single route
+- `Routes` manage/add feathers REST routes
+- `Rest` iterate REST methods and create a separate route for each
+- `Route` create/add single REST route for a service
 
 ### Base classes
 
@@ -266,18 +269,28 @@ Found in `src/base`:
 
 The `Routes` class can be extended for your own framework wrapper. It should include methods to add `base` and `id` routes to the feathers app and/or a router of your choice.
 
-TODO: API doc
+TODO: more API docs
 
-You can customize the router and route creating by passing the following function in options:
+You can customize the router and route creating by passing any of these functions in options:
 
 - `createRouter()`
-- `createRestRoute(path)`
+- `createRest(path)`
+
+`createRest` will be called in the context of the `Routes` instance (this)
+
+### Rest
+
+Generic `Rest` class to iterate all feathers REST service methods and create single route for each.
+
+You can customize the `Route` generator by supplying a custom `createRoute()` method in options. `createRoute` will be called in the context of the `Rest` instance (this)
+
+TODO: more API docs
 
 ### Route
 
 The `Route` class can be extended for your own framework wrapper. It should include methods to create and add a single route to the feathers app and/or a router of your choice.
 
-Adding multiple middleware for a route:
+Adding multiple middleware for a route is done in `addRouteMws` which any Route class must implement:
 
 ```js
 router.get(
@@ -293,7 +306,14 @@ router.get(
 );
 ```
 
-TODO: API doc
+For the KoaRoute it is done [like this](https://github.com/alexmingoia/koa-router#multiple-middleware)
+
+```js
+let restVerb = router[methods.http]
+restVerb.call(restVerbMethod, route, ...routeMws);
+```
+
+TODO: more API docs
 
 ### Wrapper
 

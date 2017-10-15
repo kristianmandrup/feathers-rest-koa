@@ -4,8 +4,8 @@ import {
   BaseRoutes
 } from '../base/routes'
 import {
-  createRoute
-} from './route'
+  createRest
+} from './rest'
 
 const RESTmethods = {
   get: 'find',
@@ -16,43 +16,35 @@ const RESTmethods = {
 };
 
 export function createRoutes(app, opts = {}) {
-  return new Routes(app, opts);
+  return new KoaRoutes(app, opts);
 }
 
-export class Routes extends BaseRoutes {
+export class KoaRoutes extends BaseRoutes {
   constructor(app, opts = {}) {
     super(app, opts)
-    this.createRestRoute = opts.createRestRoute || this._createRestRoute
-    this.createRestRoute.bind(this)
   }
 
   get label() {
-    return 'Routes'
+    return 'KoaRoutes'
+  }
+
+  get providerName() {
+    return 'koa'
   }
 
   createRouter() {
     return new Router()
   }
 
-  get provider() {
-    return 'koa'
+  createRest(path) {
+    this.log('createRest', {
+      path,
+      // ctx: this
+    })
+    return createRest(this.app, path, this.config, this.opts)
   }
 
-  createRoute(path) {
-    this.notImplemented('createRoute')
-  }
-
-  _createRestRoute(path) {
-    // imported from route.js
-    return createRoute(this.app, path, this.config, this.opts)
-  }
-
-  configure(uri) {
-    super.configure(uri)
-    this.addRoutes()
-  }
-
-  addRouterToApp() {
+  postConfig() {
     let {
       app,
       router

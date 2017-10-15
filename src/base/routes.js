@@ -9,25 +9,25 @@ export class BaseRoutes extends Logger {
     super(opts)
     this.app = app;
     this.providers = app.providers || []
-    this.router = opts.router || this.createRouter()
     this.routes = {}
+    this.router = opts.router || this.createRouter()
+
+    this.createRest = opts.createRest || this.createRest
+    this.createRest.bind(this)
   }
 
   get label() {
     return 'Routes'
   }
 
+  // such as express or koa
+  get providerName() {
+    this.error('provider must be set by subclass')
+  }
+
   createRouter() {
     this.warn('createRouter not implemented')
     // this.notImplemented('createRouter')
-  }
-
-  get label() {
-    this.notImplemented('label getter')
-  }
-
-  get provider() {
-    this.error('provider must be set by subclass')
   }
 
   set uri(_uri) {
@@ -40,11 +40,12 @@ export class BaseRoutes extends Logger {
       base: uri,
       id: `${uri}/:__feathersId`
     }
+    return this
   }
 
   registerProvider() {
     let registerFun = this.registerRest.bind(this)
-    this.log('adding provider registration callback to app providers', {
+    this.log('registerProvider: adding provider registration callback to app providers', {
       providers: this.providers,
       registerFun
     })
@@ -53,6 +54,11 @@ export class BaseRoutes extends Logger {
 
   // Register the REST provider
   registerRest(service, path, options) {
+    this.log('registerRest', {
+      service,
+      path,
+      options
+    })
     const uri = `/${path}`;
     this.uri = uri
 
@@ -71,47 +77,48 @@ export class BaseRoutes extends Logger {
       service,
       middleware,
       after,
-      before
+      before,
+      router: this.router
     }
 
     debug(`Adding REST provider for service \`${path}\` at base route \`${uri}\``);
 
-    this.configAll()
-  }
-
-  configAll() {
-    this.log('configAll')
-    this
-      .addRoutes()
+    this.addRoutes()
+    this.postConfig()
   }
 
   addRoutes() {
-    this.log('addRoutes: base, id')
-    this
-      .addRestRoutes('base')
-      .addRestRoutes('id')
+    let {
+      routeMap
+    } = this
+    if (!routeMap) {
+      this.error('routeMap must first be initialized by setting uri')
+    }
 
+    let routeNames = Object.keys(routeMap)
+    this.log('addRoutes:', {
+      routeNames,
+      routeMap
+    })
+
+    routeNames.map(name => {
+      this.addRest(name)
+    })
     return this
   }
 
-  addRestRoutes(id) {
-    this.log('addRestRoutes:', id)
-    let path = this.routeMap[id]
-    if (typeof this.createRestRoute !== 'function') {
-      this.error('missing function createRestRoute')
-    }
-
-    let route = this.createRestRoute(path)
-    this.routes.id = route
-    this.log('created rest routes:', id)
-    return this;
+  addRest(name) {
+    let path = this.routeMap[name]
+    let route = this.createRest(path)
+    this.routes[name] = route
+    return route
   }
 
-  createRoute(path) {
-    this.notImplemented('createRoute')
+  createRest(path) {
+    this.notImplemented('createRest')
   }
 
-  addRouterToApp() {
-    this.notImplemented('addRouterToApp')
+  postConfig() {
+    this.log('postConfig not implemented')
   }
 }

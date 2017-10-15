@@ -3,20 +3,29 @@ import {
 } from '../base/route'
 
 export function createRoute(app, path, config, opts) {
-  return new Route(app, path, config, opts)
+  return new ExpressRoute(app, path, config, opts)
 }
 
-export class Route extends BaseRoute {
-  constructor(app, path, config, opts = {}) {
-    super(opts)
+export class ExpressRoute extends BaseRoute {
+  constructor(rest, route, methods, opts = {}) {
+    super(rest, route, methods, opts)
   }
 
-  addRouteMws(route, routeMws, methods) {
-    let verb = route[methods.http]
-    verb.apply(verb, routeMws);
+  get label() {
+    return 'ExpressRoute'
   }
 
-  postConfig(route, methods) {
-    this.log('postConfig: not implemented yet')
+  addRouteMws(routeMws, methods) {
+    this.log('addRouteMws', {
+      methods,
+      routeMws
+    })
+    let {
+      route
+    } = this
+    let routeVerb = route[methods.http]
+    routeVerb.apply(routeVerb, routeMws);
+    this.log('added route with middleware', route)
+    return this
   }
 }

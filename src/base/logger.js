@@ -23,7 +23,7 @@ export class Logger {
   }
 
   error(msg, obj) {
-    console.error(`${this.label} #{msg}`, obj)
-    throw new Error(`${this.label} #{msg}`)
+    console.error(`${this.label} ${msg}`, obj)
+    throw new Error(`${this.label} ${msg}`)
   }
 }

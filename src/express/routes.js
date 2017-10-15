@@ -4,22 +4,21 @@ import {
   BaseRoutes
 } from '../base/routes'
 import {
-  createRoute
-} from './route'
+  createRest
+} from './rest'
 
 export function createRoutes(app, opts = {}) {
   return new Routes(app, opts);
 }
 
 // FIX: Use Express router
-export class Routes extends BaseRoutes {
+export class ExpressRoutes extends BaseRoutes {
   constructor(app, opts = {}) {
     super(app, opts)
-    this.router = opts.router || this.createRouter()
   }
 
   get label() {
-    return 'Routes'
+    return 'ExpressRoutes'
   }
 
   // TODO: create Express router
@@ -27,32 +26,15 @@ export class Routes extends BaseRoutes {
     // this.notImplemented('createRouter')
   }
 
-  get provider() {
+  get providerName() {
     return 'express'
   }
 
-  configure(uri) {
-    super.configure(uri)
-    this.addRoutes()
-  }
-
-  addRoutes() {
-    let routeNames = Object.keys(this.routeMap)
-
-    this.routesNames.map(name => {
-      let path = this.routeMap[name]
-      let route = this.createRoute(path)
-      this.routes.push(route)
+  createRest(path) {
+    this.log('createRest', {
+      path,
+      // ctx: this
     })
-    return this
-  }
-
-  createRoute(path) {
-    return app.route(path);
-  }
-
-  createRestRoute(path) {
-    // imported from route.js
-    createRoute(this.app, path, this.config, this.opts)
+    return createRest(this.app, path, this.config, this.opts)
   }
 }
