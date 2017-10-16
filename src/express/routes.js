@@ -69,10 +69,12 @@ export class ExpressRoutes extends BaseRoutes {
   createRest(path) {
     super.createRest(path)
     let name = this.invertedMap[path]
+    let route = this.appRoutes[name]
     let {
       opts
     } = this
     opts.name = name
+    opts.route = route
     this.log('createRest', {
       path,
       name,

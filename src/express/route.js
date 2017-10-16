@@ -9,6 +9,8 @@ export function createRoute(app, path, config, opts) {
 export class ExpressRoute extends BaseRoute {
   constructor(rest, path, methods, opts = {}) {
     super(rest, path, methods, opts)
+    this.log('ExpressRoute', opts)
+    this.route = opts.route
   }
 
   get label() {
