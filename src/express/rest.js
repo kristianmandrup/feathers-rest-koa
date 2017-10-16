@@ -5,13 +5,16 @@ import {
   createRoute
 } from './route'
 
-export function createRest(app, path, config, opts) {
-  return new ExpressRest(app, path, config, opts)
+export function createRest(app, config, opts) {
+  return new ExpressRest(app, config, opts)
 }
 
 export class ExpressRest extends BaseRest {
-  constructor(app, path, config, opts = {}) {
-    super(opts)
+  constructor(app, config, opts = {}) {
+    super(app, config, opts)
+    let name = opts.name
+    this.name = name
+    this.route = config.appRoutes[name]
   }
 
   get label() {

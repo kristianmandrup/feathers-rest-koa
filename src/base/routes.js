@@ -4,6 +4,12 @@ import {
   Logger
 } from './logger'
 
+export function invert(obj) {
+  return Object.assign({}, ...Object.entries(obj).map(([a, b]) => ({
+    [b]: a
+  })))
+}
+
 export class BaseRoutes extends Logger {
   constructor(app, opts = {}) {
     super(opts)
@@ -30,18 +36,37 @@ export class BaseRoutes extends Logger {
     // this.notImplemented('createRouter')
   }
 
-  set uri(_uri) {
-    this._uri = _uri;
-    this.configure(_uri);
+  set uri(uri) {
+    this.log('set uri,', uri)
+    this._uri = uri;
+    this.configure();
   }
 
-  configure(uri) {
+  get uri() {
+    return this._uri
+  }
+
+  configure() {
+    let {
+      uri
+    } = this
+    this.log('configure', {
+      uri
+    })
     let routeMap = {
       base: uri,
       id: `${uri}/:__feathersId`
     }
-    this.routeNames = Object.keys(routeMap)
+    let invertedMap = invert(routeMap)
+
+    let routeNames = Object.keys(routeMap)
     this.routeMap = routeMap
+    this.routeNames = routeNames
+    this.invertedMap = invertedMap
+    this.log('configured', {
+      routeNames,
+      routeMap
+    })
     return this
   }
 
@@ -56,14 +81,25 @@ export class BaseRoutes extends Logger {
 
   // Register the REST provider
   registerRest(service, path, options) {
+    const uri = `/${path}`;
     this.log('registerRest', {
       service,
       path,
-      options
+      options,
+      uri
     })
-    const uri = `/${path}`;
-    this.uri = uri
 
+    this.service = service
+    this.uri = uri
+    this.prepareConfig(options)
+
+    debug(`Adding REST provider for service \`${path}\` at base route \`${uri}\``);
+
+    this.addRoutes()
+    this.postConfig()
+  }
+
+  prepareConfig(options) {
     let {
       middleware = {}
     } = options;
@@ -76,17 +112,12 @@ export class BaseRoutes extends Logger {
     }
 
     this.config = {
-      service,
       middleware,
       after,
       before,
+      service: this.service,
       router: this.router
     }
-
-    debug(`Adding REST provider for service \`${path}\` at base route \`${uri}\``);
-
-    this.addRoutes()
-    this.postConfig()
   }
 
   addRoutes() {
@@ -97,7 +128,6 @@ export class BaseRoutes extends Logger {
     if (!routeMap) {
       this.error('routeMap must first be initialized by setting uri')
     }
-
 
     this.log('addRoutes:', {
       routeNames,
@@ -111,14 +141,25 @@ export class BaseRoutes extends Logger {
   }
 
   addRest(name) {
-    let path = this.routeMap[name]
+    let {
+      routeMap,
+      routes
+    } = this
+    let path = routeMap[name]
+    this.log('addRest', {
+      name,
+      path
+    })
     let route = this.createRest(path)
-    this.routes[name] = route
+    routes[name] = route
+    this.log('Rest route added', {
+      routes
+    })
     return route
   }
 
   createRest(path) {
-    this.notImplemented('createRest')
+    this.opts.path = path
   }
 
   postConfig() {

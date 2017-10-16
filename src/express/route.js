@@ -7,8 +7,8 @@ export function createRoute(app, path, config, opts) {
 }
 
 export class ExpressRoute extends BaseRoute {
-  constructor(rest, route, methods, opts = {}) {
-    super(rest, route, methods, opts)
+  constructor(rest, path, methods, opts = {}) {
+    super(rest, path, methods, opts)
   }
 
   get label() {
@@ -16,16 +16,18 @@ export class ExpressRoute extends BaseRoute {
   }
 
   addRouteMws(routeMws, methods) {
-    this.log('addRouteMws', {
-      methods,
-      routeMws
-    })
     let {
       route
     } = this
     let {
       reqMethod
     } = methods
+    this.log('addRouteMws', {
+      methods,
+      routeMws,
+      route,
+      reqMethod
+    })
     let routeVerb = route[reqMethod]
     routeVerb(...routeMws);
     this.log('added route with middleware', route)

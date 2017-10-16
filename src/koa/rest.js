@@ -5,13 +5,13 @@ import {
   createRoute
 } from './route'
 
-export function createRest(app, path, config, opts) {
-  return new KoaRest(app, path, config, opts)
+export function createRest(app, config, opts) {
+  return new KoaRest(app, config, opts)
 }
 
 export class KoaRest extends BaseRest {
-  constructor(app, path, config, opts = {}) {
-    super(app, path, config, opts)
+  constructor(app, config, opts = {}) {
+    super(app, config, opts)
   }
 
   get label() {

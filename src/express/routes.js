@@ -15,6 +15,7 @@ export function createRoutes(app, opts = {}) {
 export class ExpressRoutes extends BaseRoutes {
   constructor(app, opts = {}) {
     super(app, opts)
+    this.appRoutes = {}
   }
 
   get label() {
@@ -42,17 +43,41 @@ export class ExpressRoutes extends BaseRoutes {
       routeNames,
       routeMap
     } = this
+    this.log('createAppRoutes', {
+      routeNames,
+      routeMap
+    })
     routeNames.map(name => {
-      app.route(routeMap[name])
+      let path = routeMap[name]
+      this.addAppRoute(name, path)
     })
     return this
   }
 
+  prepareConfig(options) {
+    this.log('prepareConfig', {
+      options
+    })
+    super.prepareConfig(options)
+    this.config.appRoutes = this.appRoutes
+  }
+
+  addAppRoute(name, path) {
+    this.appRoutes[name] = this.app.route(path)
+  }
+
   createRest(path) {
+    super.createRest(path)
+    let name = this.invertedMap[path]
+    let {
+      opts
+    } = this
+    opts.name = name
     this.log('createRest', {
       path,
-      // ctx: this
+      name,
+      opts
     })
-    return createRest(this.app, path, this.config, this.opts).configure()
+    return createRest(this.app, this.config, opts).configure()
   }
 }

@@ -37,11 +37,12 @@ export class KoaRoutes extends BaseRoutes {
   }
 
   createRest(path) {
+    super.createRest(path)
+
     this.log('createRest', {
-      path,
-      // ctx: this
+      path
     })
-    return createRest(this.app, path, this.config, this.opts).configure()
+    return createRest(this.app, this.config, this.opts).configure()
   }
 
   postConfig() {

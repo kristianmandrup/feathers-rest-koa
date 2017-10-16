@@ -71,7 +71,7 @@ export class Config extends BaseConfig {
       throw new Error('feathers-rest needs an Express compatible app. Feathers apps have to wrapped with feathers-express first.');
     }
 
-    const routes = createRoutes(app, opts);
+    const routes = createRoutes(app, opts)
     routes.registerProvider();
     return this
   }

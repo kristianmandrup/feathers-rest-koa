@@ -3,9 +3,9 @@ import {
 } from './logger'
 
 export class BaseRoute extends Logger {
-  constructor(rest, route, methods, opts = {}) {
+  constructor(rest, path, methods, opts = {}) {
     super(opts)
-    this.route = route
+    this.path = path
     this.methods = methods
     this.rest = rest
   }
