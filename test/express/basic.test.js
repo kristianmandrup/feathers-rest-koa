@@ -54,7 +54,7 @@ describe('REST provider', function () {
       };
 
       app.configure(rest({
-          formatter,
+          handler: formatter,
           logging: true
         }))
         .use('/todo', {

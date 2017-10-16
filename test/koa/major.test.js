@@ -16,8 +16,9 @@ const config = require('../../src/express');
 
 function close(server, done) {
   // ??
-  console.log('closing server...??')
-  done()
+  console.log('closing server...')
+  server.close(done)
+  // done()
 }
 
 describe('REST provider', function () {
