@@ -202,17 +202,20 @@ let app = feathers()
 Start from the `test/express` folder and make sure that the routes added by the `Routes` class work as required by feathers.
 
 Start with the `test/express/basic.test.js` and make each test file pass from there...
-When done, move on to `test/koa` ;)
+
+`$ mocha test/express/basic.test.js`
+
+When done, move on to `test/express` ;)
 
 `$ mocha test/express/basic.test.js`
 
 ### Koa
 
-The main Koa test suite
+The main (full) Koa test suite:
 
 `$ mocha test/koa/major.test.js`
 
-Better to split it up in smaller parts, as has been done for `express`
+Better split it up in smaller parts, as has been done for `express` ;)
 
 We (likely?) need to create a `koaify` method, similar to `expressify` from [feathers-express](https://github.com/feathersjs/feathers-express).
 
