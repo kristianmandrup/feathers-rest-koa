@@ -57,9 +57,14 @@ export class BaseRoute extends Logger {
 
     let serviceMethod = restFactory(service);
     let routeMws = [...before, serviceMethod, ...after]
-    this.log('configure', {
+    this.log('configure middleware', {
+      rest,
       methods,
-      routeMws
+      routeMws,
+      firstMw: routeMws[0],
+      before,
+      serviceMethod,
+      after
     });
 
     this.addRouteMws(routeMws, methods)

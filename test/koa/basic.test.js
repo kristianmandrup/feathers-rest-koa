@@ -7,7 +7,10 @@ const {
 } = require('feathers-commons/lib/test-fixture');
 
 const wrapApp = require('feathers-koa')
-const rest = require('../../src');
+
+// const rest = require('../../src');
+const rest = require('../../src/express/legacy');
+
 const testCrud = require('../crud');
 
 // default express configuration functions
@@ -20,11 +23,13 @@ describe('REST provider', function () {
     it('throws an error if you did not wrapApp', () => {
       const app = feathers();
 
+      // const rested = rest({
+      //   config,
+      //   logging: true
+      // })
+      const rested = null
       try {
-        app.configure(rest({
-          config,
-          logging: true
-        }));
+        app.configure(rested);
         assert.ok(false, 'Should never get here');
       } catch (e) {
         console.log({
@@ -58,10 +63,12 @@ describe('REST provider', function () {
         });
       };
 
-      app.configure(rest({
-          handler: formatter,
-          logging: true
-        }))
+      const rested = null
+      // const rested = {
+      //   handler: formatter,
+      //   logging: true
+      // }
+      app.configure(rest(rested))
         .use('/todo', {
           get(id) {
             return Promise.resolve({

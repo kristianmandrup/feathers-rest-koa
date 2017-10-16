@@ -24,15 +24,33 @@ export class ExpressRoute extends BaseRoute {
     let {
       reqMethod
     } = methods
+    let routeVerb = route[reqMethod]
+    if (typeof routeVerb !== 'function') {
+      this.error('no such route method', {
+        route,
+        reqMethod
+      })
+    }
+
     this.log('addRouteMws', {
       methods,
       routeMws,
       route,
-      reqMethod
+      reqMethod,
+      routeVerb
     })
-    let routeVerb = route[reqMethod]
-    routeVerb(...routeMws);
-    this.log('added route with middleware', route)
+
+    if (routeMws.length === 1) {
+      routeVerb(routeMws[0]);
+    } else {
+      routeVerb(...routeMws);
+    }
+
+    this.log('added route with middleware', {
+      firstMw: routeMws[0],
+      route,
+      routeVerb
+    })
     return this
   }
 }
