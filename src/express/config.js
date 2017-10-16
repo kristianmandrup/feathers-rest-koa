@@ -63,16 +63,15 @@ export class Config extends BaseConfig {
 
   configRest() {
     let {
-      app
+      app,
+      opts
     } = this
 
     if (typeof app.route !== 'function') {
       throw new Error('feathers-rest needs an Express compatible app. Feathers apps have to wrapped with feathers-express first.');
     }
 
-    const routes = createRoutes(app, {
-      logging: opts.logging
-    });
+    const routes = createRoutes(app, opts);
     routes.registerProvider();
     return this
   }

@@ -28,7 +28,8 @@ export class BaseRoute extends Logger {
 
     this.log('configure', {
       before,
-      after
+      after,
+      config
     });
 
     let {

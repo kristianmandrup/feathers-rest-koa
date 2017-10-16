@@ -8,7 +8,7 @@ import {
 } from './rest'
 
 export function createRoutes(app, opts = {}) {
-  return new Routes(app, opts);
+  return new ExpressRoutes(app, opts);
 }
 
 // FIX: Use Express router
@@ -38,7 +38,9 @@ export class ExpressRoutes extends BaseRoutes {
 
   createAppRoutes() {
     let {
-      routeNames
+      app,
+      routeNames,
+      routeMap
     } = this
     routeNames.map(name => {
       app.route(routeMap[name])

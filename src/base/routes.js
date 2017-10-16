@@ -36,11 +36,12 @@ export class BaseRoutes extends Logger {
   }
 
   configure(uri) {
-    this.routeMap = {
+    let routeMap = {
       base: uri,
       id: `${uri}/:__feathersId`
     }
     this.routeNames = Object.keys(routeMap)
+    this.routeMap = routeMap
     return this
   }
 
