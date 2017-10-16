@@ -197,6 +197,14 @@ let app = feathers()
 - Express
 - Koa
 
+### Legacy rest
+
+The legacy `rest()` function from [feathers-rest](https://github.com/feathersjs/feathers-rest) is available in src/express/legacy and is used for now in `test/koa/basic.test.js`.
+
+However, as can be seen, it doesn't work with an app wrapped by `koaify` from `feathers-koa`. It still expects an app to be wrapped with `feathers-express`
+
+We are getting close to something that works however. Much of the infrastructure is in place to move forward!
+
 ### Express
 
 Start from the `test/express` folder and make sure that the routes added by the `Routes` class work as required by feathers.
