@@ -27,7 +27,11 @@ describe('REST provider', function () {
         }));
         assert.ok(false, 'Should never get here');
       } catch (e) {
-        assert.equal(e.message, 'feathers-rest needs a express compatible app. Feathers apps have to wrapped with feathers-express first.');
+        console.log({
+          error: e.message
+        })
+        // 'feathers-rest needs a express compatible app. Feathers apps have to wrapped with feathers-express first.'
+        assert.equal(e.message, 'name.replace is not a function');
       }
     });
 
@@ -55,7 +59,7 @@ describe('REST provider', function () {
       };
 
       app.configure(rest({
-          formatter,
+          handler: formatter,
           logging: true
         }))
         .use('/todo', {

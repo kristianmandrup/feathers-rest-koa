@@ -163,6 +163,6 @@ export class BaseRoutes extends Logger {
   }
 
   postConfig() {
-    this.log('postConfig not implemented')
+    this.log('postConfig')
   }
 }

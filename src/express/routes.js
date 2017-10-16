@@ -59,7 +59,18 @@ export class ExpressRoutes extends BaseRoutes {
       options
     })
     super.prepareConfig(options)
-    this.config.appRoutes = this.appRoutes
+
+    let handler = this.opts.handler
+    let {
+      config
+    } = this
+    let {
+      after
+    } = config
+    if (typeof handler === 'function') {
+      after = after.concat(handler);
+    }
+    config.appRoutes = this.appRoutes
   }
 
   addAppRoute(name, path) {
