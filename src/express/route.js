@@ -24,7 +24,7 @@ export class ExpressRoute extends BaseRoute {
       route
     } = this
     let routeVerb = route[methods.http]
-    routeVerb.apply(routeVerb, routeMws);
+    routeVerb(...routeMws);
     this.log('added route with middleware', route)
     return this
   }
