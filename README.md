@@ -42,6 +42,10 @@ We could perhaps enable feathers to wrap multiple servers, and expose each serve
 
 Your thoughts?
 
+### Important notice on koaify
+
+Currently the `koaify` makes the koa app act like an express app, ie. wraps the koa app and exposes the same API as express. Thus to make the tests work using `koaify`, you would have to use the `express` rest adapter until a new version of `koaify` is created that lets koa be koa!
+
 ## About
 
 This provider exposes [Feathers](http://feathersjs.com) services through a RESTful API using [Koa](http://koajs.com) that can be used with Feathers 1.x and 2.x as well as client support for Fetch, jQuery, Request, Superagent, axios and angular2+'s HTTP Service.
@@ -189,6 +193,9 @@ let app = feathers()
 ```
 
 ## Development
+
+- Express
+- Koa
 
 ### Express
 

@@ -40,6 +40,7 @@ export class BaseRoutes extends Logger {
       base: uri,
       id: `${uri}/:__feathersId`
     }
+    this.routeNames = Object.keys(routeMap)
     return this
   }
 
@@ -89,13 +90,14 @@ export class BaseRoutes extends Logger {
 
   addRoutes() {
     let {
-      routeMap
+      routeMap,
+      routeNames
     } = this
     if (!routeMap) {
       this.error('routeMap must first be initialized by setting uri')
     }
 
-    let routeNames = Object.keys(routeMap)
+
     this.log('addRoutes:', {
       routeNames,
       routeMap

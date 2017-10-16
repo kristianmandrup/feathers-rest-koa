@@ -30,6 +30,22 @@ export class ExpressRoutes extends BaseRoutes {
     return 'express'
   }
 
+  configure() {
+    super.configure()
+    this.createAppRoutes()
+    return this
+  }
+
+  createAppRoutes() {
+    let {
+      routeNames
+    } = this
+    routeNames.map(name => {
+      app.route(routeMap[name])
+    })
+    return this
+  }
+
   createRest(path) {
     this.log('createRest', {
       path,
