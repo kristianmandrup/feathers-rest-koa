@@ -10,11 +10,14 @@ const koaify = require('../../src/koa/ify')
 const rest = require('../../src');
 const testCrud = require('../crud');
 // default express configuration functions
-const config = require('../../src/koa');
 
-function close(server) {
+// Note: koa config won't work until we provide a koa centric koaify function
+const config = require('../../src/express');
+
+function close(server, done) {
   // ??
   console.log('closing server...??')
+  done()
 }
 
 describe('REST provider', function () {
@@ -70,7 +73,7 @@ describe('REST provider', function () {
         .then(res => {
           assert.equal(res.data, 'The todo is: You have to do dishes');
         })
-        .then(() => close(server));
+        .then(() => close(server, done));
     });
 
     it('lets you set no handler', () => {
@@ -93,7 +96,7 @@ describe('REST provider', function () {
 
       return axios.get('http://localhost:5775/todo-handler/dishes')
         .then(res => assert.deepEqual(res.data, data))
-        .then(() => close(server));
+        .then(() => close(server, done));
     });
   });
 
@@ -120,7 +123,7 @@ describe('REST provider', function () {
       server = app.listen(4777, () => app.use('tasks', Service));
     });
 
-    after(done => server.close(done));
+    after(done => close(server, done));
 
     testCrud('Services', 'todo');
     testCrud('Dynamic Services', 'tasks');
@@ -274,7 +277,7 @@ describe('REST provider', function () {
           assert.ok(res.status === 200, 'Got OK status code');
           assert.deepEqual(res.data, expected, 'Got params object back');
         })
-        .then(() => close(server));
+        .then(() => close(server, done));
     });
 
     it('Lets you configure your own middleware before the handler (#40)', () => {
@@ -309,7 +312,7 @@ describe('REST provider', function () {
       return axios(options)
         .then(res => {
           assert.deepEqual(res.data, data);
-          close(server);
+          close(server, done);
         });
     });
 
@@ -348,7 +351,7 @@ describe('REST provider', function () {
             after: ['after first', 'after second']
           });
         })
-        .then(() => close(server));
+        .then(() => close(server, done));
     });
 
     it('formatter does nothing when there is no res.data', () => {
@@ -364,7 +367,7 @@ describe('REST provider', function () {
 
       return axios.get('http://localhost:7988/test')
         .then(res => assert.deepEqual(res.data, data))
-        .then(() => close(server));
+        .then(() => close(server, done));
     });
   });
 
@@ -412,7 +415,7 @@ describe('REST provider', function () {
       server = app.listen(4780);
     });
 
-    after(done => server.close(done));
+    after(done => close(server, done));
 
     it('throws a 405 for undefined service methods and sets Allow header (#99)', () => {
       return axios.get('http://localhost:4780/todo/dishes')
@@ -466,7 +469,7 @@ describe('REST provider', function () {
       server = app.listen(6880);
     });
 
-    after(done => server.close(done));
+    after(done => close(server, done));
 
     it('adds route params as `params.route` and allows id property (#76, #407)', () => {
       const expected = {

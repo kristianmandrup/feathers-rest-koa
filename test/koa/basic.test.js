@@ -6,7 +6,7 @@ const {
   Service
 } = require('feathers-commons/lib/test-fixture');
 
-const expressify = require('feathers-express')
+const wrapApp = require('feathers-koa')
 const rest = require('../../src');
 const testCrud = require('../crud');
 
@@ -17,12 +17,13 @@ const {
 
 describe('REST provider', function () {
   describe('base functionality', () => {
-    it('throws an error if you did not expressify', () => {
+    it('throws an error if you did not wrapApp', () => {
       const app = feathers();
 
       try {
         app.configure(rest({
-          config
+          config,
+          logging: true
         }));
         assert.ok(false, 'Should never get here');
       } catch (e) {
@@ -32,7 +33,7 @@ describe('REST provider', function () {
 
     it('throws an error for incompatible Feathers version', () => {
       try {
-        const app = expressify(feathers());
+        const app = wrapApp(feathers());
 
         app.version = '2.9.9';
         app.configure(rest());
@@ -44,7 +45,7 @@ describe('REST provider', function () {
     });
 
     it('lets you set the handler manually', () => {
-      const app = expressify(feathers());
+      const app = wrapApp(feathers());
       const formatter = function (req, res) {
         res.format({
           'text/plain': function () {
@@ -75,7 +76,7 @@ describe('REST provider', function () {
     });
 
     it('lets you set no handler', () => {
-      const app = expressify(feathers());
+      const app = wrapApp(feathers());
       const data = {
         fromHandler: true
       };

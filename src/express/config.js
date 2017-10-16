@@ -22,17 +22,16 @@ export function formatter(req, res, next) {
 }
 
 export function config(app, opts) {
-  return new Config(app, opts).configure()
+  return new ExpressConfig(app, opts).configure()
 }
 
-export class Config extends BaseConfig {
+export class ExpressConfig extends BaseConfig {
   constructor(app, opts = {}) {
     super(app, opts)
-    console.log('Config', opts)
   }
 
   get label() {
-    return 'Config'
+    return 'ExpressConfig'
   }
 
   configJson() {
@@ -44,6 +43,7 @@ export class Config extends BaseConfig {
   }
 
   configProvider() {
+    this.log('configProvider')
     let {
       app
     } = this
@@ -66,6 +66,10 @@ export class Config extends BaseConfig {
       app,
       opts
     } = this
+    this.log('configRest', {
+      app,
+      opts
+    })
 
     if (typeof app.route !== 'function') {
       throw new Error('feathers-rest needs an Express compatible app. Feathers apps have to wrapped with feathers-express first.');

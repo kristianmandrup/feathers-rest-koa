@@ -22,7 +22,7 @@ export class ExpressRest extends BaseRest {
   }
 
   createRoute(route, methods) {
-    console.log('createRoute', {
+    this.log('createRoute', {
       route,
       methods
     })

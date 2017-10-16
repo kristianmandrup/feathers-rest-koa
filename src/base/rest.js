@@ -13,11 +13,6 @@ const reqServiceMap = {
 export class BaseRest extends Logger {
   constructor(app, config = {}, opts = {}) {
     super(opts)
-    console.log('create BaseRest', {
-      app,
-      config,
-      opts
-    })
     this.app = app
     this.path = opts.path
     this.config = config

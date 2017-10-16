@@ -11,16 +11,16 @@ import {
 } from '../base/config'
 
 export function config(app, opts) {
-  return new Config(app, opts).configure()
+  return new KoaConfig(app, opts).configure()
 }
 
-export class Config extends BaseConfig {
+export class KoaConfig extends BaseConfig {
   constructor(app, opts = {}) {
     super(app, opts)
   }
 
   get label() {
-    return 'Config'
+    return 'KoaConfig'
   }
 
   configJson() {
@@ -64,6 +64,10 @@ export class Config extends BaseConfig {
       app,
       opts
     } = this
+    this.log('configRest', {
+      app,
+      opts
+    })
     const routes = createRoutes(app, {
       logging: opts.logging
     })
